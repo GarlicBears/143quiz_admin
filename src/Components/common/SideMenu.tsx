@@ -34,7 +34,9 @@ const NavItem: React.FC<NavItemProps> = ({ label, to, icon }) => {
       _hover={{ bg: 'gray.200', color: 'black' }}
     >
       {icon && <Image src={icon} boxSize="20px" mr="2" />}
-        <Text fontSize="lg" fontWeight="bold">{label}</Text>
+      <Text fontSize="lg" fontWeight="bold">
+        {label}
+      </Text>
     </Flex>
   );
 };
