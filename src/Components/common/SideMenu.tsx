@@ -61,10 +61,10 @@ const SideMenu: React.FC = () => {
       </Flex>
       <NavItem label="대시보드" to="/" icon={gridImage} />
       <NavItem label="방문자 수" to="/visitors" icon={visitImage} />
-      <NavItem label="게임 통계" to="/game-stats" icon={gameImage} />
-      <NavItem label="유저 관리" to="/user-management" icon={userImage} />
-      <NavItem label="관리자 관리" to="/admin-management" icon={adminImage} />
-      <NavItem label="주제 관리" to="/topic-management" icon={editImage} />
+      <NavItem label="게임 통계" to="/gamestats" icon={gameImage} />
+      <NavItem label="유저 관리" to="/usersetting" icon={userImage} />
+      <NavItem label="관리자 관리" to="/adminsetting" icon={adminImage} />
+      <NavItem label="주제 관리" to="/topicsetting" icon={editImage} />
       <NavItem label="로그아웃" to="/logout" icon={logoutImage} />
     </Box>
   );
