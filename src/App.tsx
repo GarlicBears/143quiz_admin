@@ -4,6 +4,7 @@ import Layout from './Components/common/Layout';
 import Dashboard from './Pages/Dashboard';
 import Login from './Pages/Login';
 import Visitor from './Pages/Visitor';
+import GameStat from './Pages/GameStat';
 import Error from './Pages/Error';
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path="/visitors" element={<Visitor />} />
+          <Route path="/gamestats" element={<GameStat />} />
         </Route>
 
         <Route path="/login" element={<Login />} />
