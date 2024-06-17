@@ -5,6 +5,7 @@ import Dashboard from './Pages/Dashboard';
 import Login from './Pages/Login';
 import Visitor from './Pages/Visitor';
 import GameStat from './Pages/GameStat';
+import UserSetting from './Pages/UserSetting';
 import Error from './Pages/Error';
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="/visitors" element={<Visitor />} />
           <Route path="/gamestats" element={<GameStat />} />
+          <Route path="/usersetting" element={<UserSetting />} />
         </Route>
 
         <Route path="/login" element={<Login />} />
