@@ -7,6 +7,7 @@ import Visitor from './Pages/Visitor';
 import GameStat from './Pages/GameStat';
 import UserSetting from './Pages/UserSetting';
 import AdminSetting from './Pages/AdminSetting';
+import TopicSetting from './Pages/TopicSetting';
 import Error from './Pages/Error';
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
           <Route path="/gamestats" element={<GameStat />} />
           <Route path="/usersetting" element={<UserSetting />} />
           <Route path="/adminsetting" element={<AdminSetting />} />
+          <Route path="/topicsetting" element={<TopicSetting />} />
         </Route>
 
         <Route path="/login" element={<Login />} />

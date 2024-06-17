@@ -52,6 +52,7 @@ const chartOptions: ChartOptions<'line' | 'bar' | 'doughnut'> = {
   },
 };
 
+
 const chartData = {
   line: {
     labels: [
