@@ -24,6 +24,7 @@ const Header = () => {
     <Box bg="gray.200" p="4" borderRadius="md" mb="4" textAlign="center">
       <Text fontSize="2xl" fontWeight="bold">
         {getPageTitle()}
+
       </Text>
     </Box>
   );
