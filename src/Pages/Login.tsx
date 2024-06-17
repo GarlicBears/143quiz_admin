@@ -48,7 +48,7 @@ const Login = () => {
                   <Input
                     type="text"
                     value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    onChange={e => setUsername(e.target.value)}
                   />
                 </HStack>
               </FormControl>
@@ -60,7 +60,7 @@ const Login = () => {
                   <Input
                     type="password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={e => setPassword(e.target.value)}
                   />
                 </HStack>
               </FormControl>
