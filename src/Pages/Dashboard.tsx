@@ -17,7 +17,6 @@ interface StatBoxProps {
 }
 import { chartData } from '../Asset/MockData';
 
-
 const StatBox: React.FC<StatBoxProps> = ({ label, value, unit }) => {
   return (
     <Flex

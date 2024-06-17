@@ -100,7 +100,7 @@ const DataTable: React.FC = () => {
         border="1px"
         borderColor="gray.400"
       >
-        <TableCaption>Sortable Data Table</TableCaption>
+        <TableCaption>게임 통계 테이블</TableCaption>
         <Thead>
           <Tr>
             <Th textAlign="center">
