@@ -5,6 +5,7 @@ import Dashboard from './Pages/Dashboard';
 import Login from './Pages/Login';
 import Visitor from './Pages/Visitor';
 import GameStat from './Pages/GameStat';
+
 import Error from './Pages/Error';
 
 function App() {
