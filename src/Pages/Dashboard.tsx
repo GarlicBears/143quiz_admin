@@ -15,7 +15,6 @@ interface StatBoxProps {
   value: string | number;
   unit?: string;
 }
-import { chartData } from '../Asset/MockData';
 
 const StatBox: React.FC<StatBoxProps> = ({ label, value, unit }) => {
   return (

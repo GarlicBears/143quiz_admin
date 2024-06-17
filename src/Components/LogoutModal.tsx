@@ -14,7 +14,7 @@ const LogoutModal: React.FC<LogoutModalProps> = ({ isOpen, onClose }) => {
 
   const handleLogout = () => {
     // Cookies.remove('accessToken'); // 주석을 풀어 쿠키를 삭제할 수 있습니다.
-    navigate('/');
+    navigate('/login');
   };
 
   return (
