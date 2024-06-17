@@ -19,6 +19,7 @@ interface NavItemProps {
 }
 
 const NavItem: React.FC<NavItemProps> = ({ label, to, icon, onClick }) => {
+
   const location = useLocation();
   const isActive = location.pathname === to;
 
