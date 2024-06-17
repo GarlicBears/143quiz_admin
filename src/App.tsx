@@ -6,6 +6,7 @@ import Login from './Pages/Login';
 import Visitor from './Pages/Visitor';
 import GameStat from './Pages/GameStat';
 import UserSetting from './Pages/UserSetting';
+import AdminSetting from './Pages/AdminSetting';
 import Error from './Pages/Error';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
           <Route path="/visitors" element={<Visitor />} />
           <Route path="/gamestats" element={<GameStat />} />
           <Route path="/usersetting" element={<UserSetting />} />
+          <Route path="/adminsetting" element={<AdminSetting />} />
         </Route>
 
         <Route path="/login" element={<Login />} />
