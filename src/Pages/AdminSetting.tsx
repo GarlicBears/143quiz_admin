@@ -14,7 +14,9 @@ import {
   Input,
   VStack,
   HStack,
+  IconButton,
 } from '@chakra-ui/react';
+import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import ConfirmModal from '../Components/common/ConfirmModal';
 
 interface DataItem {
@@ -89,6 +91,17 @@ const AdminSetting = () => {
       direction = 'descending';
     }
     setSortConfig({ key, direction });
+  };
+
+  const renderSortIcon = (key: keyof DataItem) => {
+    if (sortConfig?.key === key) {
+      return sortConfig.direction === 'ascending' ? (
+        <ChevronUpIcon />
+      ) : (
+        <ChevronDownIcon />
+      );
+    }
+    return <ChevronDownIcon />;
   };
 
   const filteredData = useMemo(() => {
@@ -203,37 +216,75 @@ const AdminSetting = () => {
                     onChange={handleSelectAll}
                   />
                 </Th>
-                <Th textAlign="center">
-                  <Button onClick={() => requestSort('id')}>ID</Button>
+                <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                  ID
+                  <IconButton
+                    icon={renderSortIcon('id')}
+                    onClick={() => requestSort('id')}
+                    aria-label="Sort ID"
+                    size="xs"
+                    ml={2}
+                  />
                 </Th>
-                <Th textAlign="center">
-                  <Button onClick={() => requestSort('관리자명')}>
-                    관리자명
-                  </Button>
+                <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                  관리자명
+                  <IconButton
+                    icon={renderSortIcon('관리자명')}
+                    onClick={() => requestSort('관리자명')}
+                    aria-label="Sort 관리자명"
+                    size="xs"
+                    ml={2}
+                  />
                 </Th>
-                <Th textAlign="center">
-                  <Button onClick={() => requestSort('이메일')}>이메일</Button>
+                <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                  이메일
+                  <IconButton
+                    icon={renderSortIcon('이메일')}
+                    onClick={() => requestSort('이메일')}
+                    aria-label="Sort 이메일"
+                    size="xs"
+                    ml={2}
+                  />
                 </Th>
-                <Th textAlign="center">
-                  <Button onClick={() => requestSort('관리자생성일')}>
-                    관리자생성일
-                  </Button>
+                <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                  관리자생성일
+                  <IconButton
+                    icon={renderSortIcon('관리자생성일')}
+                    onClick={() => requestSort('관리자생성일')}
+                    aria-label="Sort 관리자생성일"
+                    size="xs"
+                    ml={2}
+                  />
                 </Th>
-                <Th textAlign="center">
-                  <Button onClick={() => requestSort('마지막관리자수정일')}>
-                    마지막관리자수정일
-                  </Button>
+                <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                  마지막관리자수정일
+                  <IconButton
+                    icon={renderSortIcon('마지막관리자수정일')}
+                    onClick={() => requestSort('마지막관리자수정일')}
+                    aria-label="Sort 마지막관리자수정일"
+                    size="xs"
+                    ml={2}
+                  />
                 </Th>
-                <Th textAlign="center">
-                  <Button onClick={() => requestSort('관리자상태')}>
-                    관리자상태
-                  </Button>
+                <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                  관리자상태
+                  <IconButton
+                    icon={renderSortIcon('관리자상태')}
+                    onClick={() => requestSort('관리자상태')}
+                    aria-label="Sort 관리자상태"
+                    size="xs"
+                    ml={2}
+                  />
                 </Th>
-                <Th textAlign="center">
-                  <Button onClick={() => requestSort('권한')}>권한</Button>
-                </Th>
-                <Th textAlign="center">
-                  <Button onClick={() => requestSort('권한')}>권한</Button>
+                <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                  권한
+                  <IconButton
+                    icon={renderSortIcon('권한')}
+                    onClick={() => requestSort('권한')}
+                    aria-label="Sort 권한"
+                    size="xs"
+                    ml={2}
+                  />
                 </Th>
                 <Th textAlign="center">
                   <Button

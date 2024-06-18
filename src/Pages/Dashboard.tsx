@@ -1,4 +1,3 @@
-// src/Pages/Dashboard.tsx
 import React from 'react';
 import {
   SimpleGrid,
@@ -50,7 +49,6 @@ const chartOptions: ChartOptions<'line' | 'bar' | 'doughnut'> = {
     },
   },
 };
-
 
 const chartData = {
   line: {
