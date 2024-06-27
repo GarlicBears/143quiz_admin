@@ -21,6 +21,7 @@ import {
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import ConfirmModal from '../Components/common/ConfirmModal';
 import axios from 'axios';
+import axiosInstance from '../API/axiosInstance';
 
 interface TopicItem {
   topicId: number;
@@ -58,12 +59,9 @@ const TopicSetting = () => {
   const [excel, setExcel] = useState<File | null>(null);
 
   // API 호출 함수
-  // TODO : axios interceptors 설정하기
   const getTopicData = useCallback(async () => {
     try {
-      const response = await axios.get(
-        'http://localhost:8080/api/admin/topics',
-      );
+      const response = await axiosInstance.get('/admin/topics');
       const data = response.data;
       if (Array.isArray(data.topics)) {
         setTopics(data.topics);
@@ -128,7 +126,16 @@ const TopicSetting = () => {
 
   // TODO : 서버의 주제 삭제 기능 구현
   // 특정 주제 삭제 요청 함수
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
+    try {
+      const response = await axiosInstance.delete(`/admin/topic/${id}`);
+      const data = response.data;
+      console.log('Deleted topic:');
+      console.log(data);
+    } catch (error) {
+      console.error('Error deleting topic:', error);
+    }
+
     setDeleteRowIds([id]);
     onOpen();
   };
@@ -145,7 +152,15 @@ const TopicSetting = () => {
   };
 
   // 주제 삭제 확인 및 실제 삭제 함수
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
+    try {
+      // 각 주제에 대해 삭제 요청을 서버로 보냄
+      for (const id of deleteRowIds) {
+        await axiosInstance.delete(`/admin/topic/${id}`);
+      }
+    } catch (error) {
+      console.error('Error deleting topics:', error);
+    }
     setTopics(prevData =>
       prevData.map(topic =>
         deleteRowIds.includes(topic.topicId)
@@ -163,8 +178,17 @@ const TopicSetting = () => {
 
   // 이미지 및 엑셀 파일 업로드 처리 함수
   // TODO: 이미지 및 엑셀 파일 업로드 및 서버에 저장하기 구현
-  const handleUpload = () => {
-    if (image && excel) {
+  // TODO : 이미지 업로드 및 서버에 저장하기
+  const handleUpload = async () => {
+    // if (image && excel) {
+    try {
+      axiosInstance.post('/admin/topic/upload-excel', excel).then(res => {
+        console.log(res);
+      });
+    } catch (error) {
+      console.error('Error uploading excel:', error);
+    }
+    if (excel) {
       const newTopic: TopicItem = {
         topicId: topics.length + 1,
         topicText: `New Topic ${topics.length + 1}`,
@@ -216,9 +240,8 @@ const TopicSetting = () => {
               }
             />
           </FormControl>
-          <Button onClick={handleUpload} isDisabled={!image || !excel}>
-            업로드
-          </Button>
+          {/*<Button onClick={handleUpload} isDisabled={!image || !excel}>*/}
+          <Button onClick={handleUpload}>업로드</Button>
         </HStack>
         <TableContainer>
           <Table
