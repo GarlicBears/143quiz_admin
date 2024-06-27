@@ -8,20 +8,32 @@ import axios, {
 const axiosInstance = axios.create({
   baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8080/api',
   timeout: 5000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
 });
+
+// axiosInstance.interceptors.request.use(
+//   config => {
+//     if (config.url) {
+//       if (config.url.includes('/upload-excel')) {
+//         config.headers['Content-Type'] = 'multipart/form-data';
+//       } else {
+//         config.headers['Content-Type'] = 'application/json';
+//       }
+//     }
+//     return config;
+//   },
+//   error => {
+//     return Promise.reject(error);
+//   },
+// );
 
 // accessToken 을 보내지 않을 URL 목록
 const excludeUrlEndings = ['/login'];
-
 
 // TODO : 임시 ACCESS_TOKEN 변경하기(헤더에 담겨오는 accessToken 가져오기)
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
     const accessToken = process.env.REACT_APP_ACCESS_TOKEN;
-    const isExcludedUrl = excludeUrlEndings.some((ending) =>
+    const isExcludedUrl = excludeUrlEndings.some(ending =>
       config.url?.endsWith(ending),
     );
 

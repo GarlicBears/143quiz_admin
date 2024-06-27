@@ -184,22 +184,20 @@ const TopicSetting = () => {
     try {
       axiosInstance.post('/admin/topic/upload-excel', excel).then(res => {
         console.log(res);
+        const newTopic: TopicItem = {
+          topicId: topics.length + 1,
+          topicText: `New Topic ${topics.length + 1}`,
+          topicCreationDate: new Date().toISOString(),
+          topicUpdateDate: new Date().toISOString(),
+          topicUsageCount: 0,
+          topicStatus: '정상',
+        };
+        setTopics([...topics, newTopic]);
+        setImage(null);
+        setExcel(null);
       });
     } catch (error) {
       console.error('Error uploading excel:', error);
-    }
-    if (excel) {
-      const newTopic: TopicItem = {
-        topicId: topics.length + 1,
-        topicText: `New Topic ${topics.length + 1}`,
-        topicCreationDate: new Date().toISOString(),
-        topicUpdateDate: new Date().toISOString(),
-        topicUsageCount: 0,
-        topicStatus: '정상',
-      };
-      setTopics([...topics, newTopic]);
-      setImage(null);
-      setExcel(null);
     }
   };
 
