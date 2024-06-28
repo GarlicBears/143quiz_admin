@@ -20,7 +20,6 @@ import {
 } from '@chakra-ui/react';
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import ConfirmModal from '../Components/common/ConfirmModal';
-import axios from 'axios';
 import axiosInstance from '../API/axiosInstance';
 
 interface TopicItem {
@@ -124,7 +123,6 @@ const TopicSetting = () => {
     );
   };
 
-  // TODO : 서버의 주제 삭제 기능 구현
   // 특정 주제 삭제 요청 함수
   const handleDelete = async (id: number) => {
     try {
@@ -177,27 +175,31 @@ const TopicSetting = () => {
   };
 
   // 이미지 및 엑셀 파일 업로드 처리 함수
-  // TODO: 이미지 및 엑셀 파일 업로드 및 서버에 저장하기 구현
   // TODO : 이미지 업로드 및 서버에 저장하기
   const handleUpload = async () => {
-    // if (image && excel) {
-    try {
-      axiosInstance.post('/admin/topic/upload-excel', excel).then(res => {
-        console.log(res);
-        const newTopic: TopicItem = {
-          topicId: topics.length + 1,
-          topicText: `New Topic ${topics.length + 1}`,
-          topicCreationDate: new Date().toISOString(),
-          topicUpdateDate: new Date().toISOString(),
-          topicUsageCount: 0,
-          topicStatus: '정상',
-        };
-        setTopics([...topics, newTopic]);
+    if (excel) {
+      const formData = new FormData();
+      formData.append('excel', excel);
+
+      try {
+        const response = await axiosInstance.post(
+          '/admin/topic/upload-excel',
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          },
+        );
+        console.log(response.data);
+
+        // 업로드 후 데이터 다시 불러오기
+        getTopicData();
         setImage(null);
         setExcel(null);
-      });
-    } catch (error) {
-      console.error('Error uploading excel:', error);
+      } catch (error) {
+        console.error('Error uploading excel:', error);
+      }
     }
   };
 

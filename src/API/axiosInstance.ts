@@ -7,24 +7,25 @@ import axios, {
 
 const axiosInstance = axios.create({
   baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8080/api',
-  timeout: 5000,
+  timeout: 10000,
+  withCredentials: true,
 });
 
-// axiosInstance.interceptors.request.use(
-//   config => {
-//     if (config.url) {
-//       if (config.url.includes('/upload-excel')) {
-//         config.headers['Content-Type'] = 'multipart/form-data';
-//       } else {
-//         config.headers['Content-Type'] = 'application/json';
-//       }
-//     }
-//     return config;
-//   },
-//   error => {
-//     return Promise.reject(error);
-//   },
-// );
+axiosInstance.interceptors.request.use(
+  config => {
+    if (config.url) {
+      if (config.url.includes('/upload-excel')) {
+        config.headers['Content-Type'] = 'multipart/form-data';
+      } else {
+        config.headers['Content-Type'] = 'application/json';
+      }
+    }
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
+  },
+);
 
 // accessToken 을 보내지 않을 URL 목록
 const excludeUrlEndings = ['/login'];
