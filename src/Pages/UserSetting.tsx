@@ -14,7 +14,9 @@ import {
   Input,
   VStack,
   HStack,
+  IconButton,
 } from '@chakra-ui/react';
+import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import ConfirmModal from '../Components/common/ConfirmModal';
 
 interface DataItem {
@@ -88,6 +90,17 @@ const UserSetting = () => {
       direction = 'descending';
     }
     setSortConfig({ key, direction });
+  };
+
+  const renderSortIcon = (key: keyof DataItem) => {
+    if (sortConfig?.key === key) {
+      return sortConfig.direction === 'ascending' ? (
+        <ChevronUpIcon />
+      ) : (
+        <ChevronDownIcon />
+      );
+    }
+    return <ChevronDownIcon />;
   };
 
   const filteredData = useMemo(() => {
@@ -194,32 +207,75 @@ const UserSetting = () => {
                     onChange={handleSelectAll}
                   />
                 </Th>
-                <Th textAlign="center">
-                  <Button onClick={() => requestSort('id')}>ID</Button>
+                <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                  ID
+                  <IconButton
+                    icon={renderSortIcon('id')}
+                    onClick={() => requestSort('id')}
+                    aria-label="Sort ID"
+                    size="xs"
+                    ml={2}
+                  />
                 </Th>
-                <Th textAlign="center">
-                  <Button onClick={() => requestSort('유저명')}>유저명</Button>
+                <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                  유저명
+                  <IconButton
+                    icon={renderSortIcon('유저명')}
+                    onClick={() => requestSort('유저명')}
+                    aria-label="Sort 유저명"
+                    size="xs"
+                    ml={2}
+                  />
                 </Th>
-                <Th textAlign="center">
-                  <Button onClick={() => requestSort('이메일')}>이메일</Button>
+                <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                  이메일
+                  <IconButton
+                    icon={renderSortIcon('이메일')}
+                    onClick={() => requestSort('이메일')}
+                    aria-label="Sort 이메일"
+                    size="xs"
+                    ml={2}
+                  />
                 </Th>
-                <Th textAlign="center">
-                  <Button onClick={() => requestSort('계정생성일')}>
-                    계정생성일
-                  </Button>
+                <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                  계정생성일
+                  <IconButton
+                    icon={renderSortIcon('계정생성일')}
+                    onClick={() => requestSort('계정생성일')}
+                    aria-label="Sort 계정생성일"
+                    size="xs"
+                    ml={2}
+                  />
                 </Th>
-                <Th textAlign="center">
-                  <Button onClick={() => requestSort('마지막계정수정일')}>
-                    마지막계정수정일
-                  </Button>
+                <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                  마지막계정수정일
+                  <IconButton
+                    icon={renderSortIcon('마지막계정수정일')}
+                    onClick={() => requestSort('마지막계정수정일')}
+                    aria-label="Sort 마지막계정수정일"
+                    size="xs"
+                    ml={2}
+                  />
                 </Th>
-                <Th textAlign="center">
-                  <Button onClick={() => requestSort('회원상태')}>
-                    회원상태
-                  </Button>
+                <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                  회원상태
+                  <IconButton
+                    icon={renderSortIcon('회원상태')}
+                    onClick={() => requestSort('회원상태')}
+                    aria-label="Sort 회원상태"
+                    size="xs"
+                    ml={2}
+                  />
                 </Th>
-                <Th textAlign="center">
-                  <Button onClick={() => requestSort('권한')}>권한</Button>
+                <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                  권한
+                  <IconButton
+                    icon={renderSortIcon('권한')}
+                    onClick={() => requestSort('권한')}
+                    aria-label="Sort 권한"
+                    size="xs"
+                    ml={2}
+                  />
                 </Th>
                 <Th textAlign="center">
                   <Button
