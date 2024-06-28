@@ -1,4 +1,3 @@
-// src/Pages/Dashboard.tsx
 import React from 'react';
 import {
   SimpleGrid,
@@ -15,7 +14,6 @@ interface StatBoxProps {
   value: string | number;
   unit?: string;
 }
-import { chartData } from '../Asset/MockData';
 
 const StatBox: React.FC<StatBoxProps> = ({ label, value, unit }) => {
   return (
@@ -51,7 +49,6 @@ const chartOptions: ChartOptions<'line' | 'bar' | 'doughnut'> = {
     },
   },
 };
-
 
 const chartData = {
   line: {
