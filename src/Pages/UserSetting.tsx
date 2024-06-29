@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Table,
   Thead,
@@ -18,15 +18,28 @@ import {
 } from '@chakra-ui/react';
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import ConfirmModal from '../Components/common/ConfirmModal';
+import axiosInstance from '../API/axiosInstance';
+
+interface User {
+  userId: number;
+  email: string;
+  nickname: string;
+  birthYear: number;
+  age: number;
+  gender: string;
+  location: string;
+  active: string;
+}
 
 interface DataItem {
   id: number;
-  유저명: string;
-  이메일: string;
-  계정생성일: string;
-  마지막계정수정일: string | null;
-  회원상태: string;
-  권한: string;
+  nickname: string;
+  email: string;
+  birthYear: number;
+  age: number;
+  gender: string;
+  location: string;
+  active: string;
 }
 
 interface SortConfig {
@@ -34,52 +47,48 @@ interface SortConfig {
   direction: 'ascending' | 'descending';
 }
 
-const UserSetting = () => {
-  const [data, setData] = useState<DataItem[]>([
-    {
-      id: 1,
-      유저명: 'test1',
-      이메일: 'dsafsfd@gamol.com',
-      계정생성일: `2023-01-01`,
-      마지막계정수정일: `2024-01-01`,
-      회원상태: `정상`,
-      권한: '회원',
-    },
-    {
-      id: 2,
-      유저명: 'test2',
-      이메일: 'asdf@gamol.com',
-      계정생성일: `2023-02-01`,
-      마지막계정수정일: `2024-02-01`,
-      회원상태: `정상`,
-      권한: '회원',
-    },
-    {
-      id: 3,
-      유저명: 'test3',
-      이메일: 'eeeeee@gamol.com',
-      계정생성일: `2024-01-04`,
-      마지막계정수정일: `2024-03-01`,
-      회원상태: `탈퇴`,
-      권한: '회원',
-    },
-    {
-      id: 4,
-      유저명: 'admin1',
-      이메일: 'admin@gamol.com',
-      계정생성일: `2021-01-01`,
-      마지막계정수정일: `2024-05-01`,
-      회원상태: `정상`,
-      권한: '관리자',
-    },
-  ]);
-
+const UserSetting: React.FC = () => {
+  const [data, setData] = useState<DataItem[]>([]);
   const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [deleteRowIds, setDeleteRowIds] = useState<number[]>([]);
 
+  // 유저 데이터 조회
+  useEffect(() => {
+    getUserData();
+  }, []);
+
+  const getUserData = async () => {
+    try {
+      const res = await axiosInstance.get<{
+        sort: string;
+        pageNumber: number;
+        pageSize: number;
+        totalPage: number;
+        totalCount: number;
+        users: User[];
+      }>('/admin/user/');
+
+      const users = res.data.users.map(user => ({
+        id: user.userId,
+        nickname: user.nickname,
+        email: user.email,
+        birthYear: user.birthYear,
+        age: user.age,
+        gender: user.gender,
+        location: user.location,
+        active: user.active,
+      }));
+
+      setData(users);
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  };
+
+  // 정렬 기능
   const requestSort = (key: keyof DataItem) => {
     let direction: 'ascending' | 'descending' = 'ascending';
     if (
@@ -106,8 +115,8 @@ const UserSetting = () => {
   const filteredData = useMemo(() => {
     return data.filter(
       item =>
-        item.유저명.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.이메일.toLowerCase().includes(searchTerm.toLowerCase()),
+        item.nickname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.email?.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [data, searchTerm]);
 
@@ -142,6 +151,7 @@ const UserSetting = () => {
     return sortableItems;
   }, [filteredData, sortConfig]);
 
+  // 선택 삭제 기능
   const handleSelectAll = () => {
     if (selectedRows.length === data.length) {
       setSelectedRows([]);
@@ -163,18 +173,26 @@ const UserSetting = () => {
 
   const handleBulkDelete = () => {
     const deletableRows = selectedRows.filter(
-      id =>
-        !(
-          data.find(row => row.id === id)?.회원상태 === '탈퇴' ||
-          data.find(row => row.id === id)?.권한 === '관리자'
-        ),
+      id => data.find(row => row.id === id)?.active !== 'inactive',
     );
     setDeleteRowIds(deletableRows);
     onOpen();
   };
 
-  const confirmDelete = () => {
-    console.log('이 회원을 삭제하시겠습니까?', deleteRowIds);
+  const confirmDelete = async () => {
+    console.log('confirmDelete user:', ...deleteRowIds);
+    try {
+      // 각 사용자에 대해 삭제 요청을 서버로 보냄
+      for (const id of deleteRowIds) {
+        console.log(`/admin/user/${id}`);
+        await axiosInstance.delete(`/admin/user/${id}`);
+      }
+      console.log('Users deleted successfully');
+    } catch (error) {
+      console.error('Error deleting users:', error);
+    }
+
+    // 상태 업데이트
     setData(prevData => prevData.filter(row => !deleteRowIds.includes(row.id)));
     setSelectedRows([]);
     onClose();
@@ -220,8 +238,8 @@ const UserSetting = () => {
                 <Th textAlign="center" fontWeight="bold" fontSize="1rem">
                   유저명
                   <IconButton
-                    icon={renderSortIcon('유저명')}
-                    onClick={() => requestSort('유저명')}
+                    icon={renderSortIcon('nickname')}
+                    onClick={() => requestSort('nickname')}
                     aria-label="Sort 유저명"
                     size="xs"
                     ml={2}
@@ -230,49 +248,59 @@ const UserSetting = () => {
                 <Th textAlign="center" fontWeight="bold" fontSize="1rem">
                   이메일
                   <IconButton
-                    icon={renderSortIcon('이메일')}
-                    onClick={() => requestSort('이메일')}
+                    icon={renderSortIcon('email')}
+                    onClick={() => requestSort('email')}
                     aria-label="Sort 이메일"
                     size="xs"
                     ml={2}
                   />
                 </Th>
                 <Th textAlign="center" fontWeight="bold" fontSize="1rem">
-                  계정생성일
+                  생년
                   <IconButton
-                    icon={renderSortIcon('계정생성일')}
-                    onClick={() => requestSort('계정생성일')}
-                    aria-label="Sort 계정생성일"
+                    icon={renderSortIcon('birthYear')}
+                    onClick={() => requestSort('birthYear')}
+                    aria-label="Sort 생년"
                     size="xs"
                     ml={2}
                   />
                 </Th>
                 <Th textAlign="center" fontWeight="bold" fontSize="1rem">
-                  마지막계정수정일
+                  나이
                   <IconButton
-                    icon={renderSortIcon('마지막계정수정일')}
-                    onClick={() => requestSort('마지막계정수정일')}
-                    aria-label="Sort 마지막계정수정일"
+                    icon={renderSortIcon('age')}
+                    onClick={() => requestSort('age')}
+                    aria-label="Sort 나이"
                     size="xs"
                     ml={2}
                   />
                 </Th>
                 <Th textAlign="center" fontWeight="bold" fontSize="1rem">
-                  회원상태
+                  성별
                   <IconButton
-                    icon={renderSortIcon('회원상태')}
-                    onClick={() => requestSort('회원상태')}
-                    aria-label="Sort 회원상태"
+                    icon={renderSortIcon('gender')}
+                    onClick={() => requestSort('gender')}
+                    aria-label="Sort 성별"
                     size="xs"
                     ml={2}
                   />
                 </Th>
                 <Th textAlign="center" fontWeight="bold" fontSize="1rem">
-                  권한
+                  위치
                   <IconButton
-                    icon={renderSortIcon('권한')}
-                    onClick={() => requestSort('권한')}
-                    aria-label="Sort 권한"
+                    icon={renderSortIcon('location')}
+                    onClick={() => requestSort('location')}
+                    aria-label="Sort 위치"
+                    size="xs"
+                    ml={2}
+                  />
+                </Th>
+                <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                  상태
+                  <IconButton
+                    icon={renderSortIcon('active')}
+                    onClick={() => requestSort('active')}
+                    aria-label="Sort 상태"
                     size="xs"
                     ml={2}
                   />
@@ -298,19 +326,18 @@ const UserSetting = () => {
                     />
                   </Td>
                   <Td textAlign="center">{row.id}</Td>
-                  <Td textAlign="center">{row.유저명}</Td>
-                  <Td textAlign="center">{row.이메일}</Td>
-                  <Td textAlign="center">{row.계정생성일}</Td>
-                  <Td textAlign="center">{row.마지막계정수정일}</Td>
-                  <Td textAlign="center">{row.회원상태}</Td>
-                  <Td textAlign="center">{row.권한}</Td>
+                  <Td textAlign="center">{row.nickname}</Td>
+                  <Td textAlign="center">{row.email}</Td>
+                  <Td textAlign="center">{row.birthYear}</Td>
+                  <Td textAlign="center">{row.age}</Td>
+                  <Td textAlign="center">{row.gender}</Td>
+                  <Td textAlign="center">{row.location}</Td>
+                  <Td textAlign="center">{row.active}</Td>
                   <Td textAlign="center">
                     <Button
                       colorScheme="red"
                       onClick={() => handleDelete(row.id)}
-                      isDisabled={
-                        row.회원상태 === '탈퇴' || row.권한 === '관리자'
-                      }
+                      isDisabled={row.active === 'inactive'}
                     >
                       삭제
                     </Button>

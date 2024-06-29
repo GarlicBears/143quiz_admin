@@ -27,30 +27,30 @@ axiosInstance.interceptors.request.use(
   },
 );
 
-// accessToken 을 보내지 않을 URL 목록
-const excludeUrlEndings = ['/login'];
-
-// TODO : 임시 ACCESS_TOKEN 변경하기(헤더에 담겨오는 accessToken 가져오기)
-axiosInstance.interceptors.request.use(
-  (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
-    const accessToken = process.env.REACT_APP_ACCESS_TOKEN;
-    const isExcludedUrl = excludeUrlEndings.some(ending =>
-      config.url?.endsWith(ending),
-    );
-
-    if (accessToken && !isExcludedUrl) {
-      if (!config.headers) {
-        config.headers = {} as AxiosRequestHeaders;
-      }
-      (config.headers as AxiosRequestHeaders).Authorization =
-        `Bearer ${accessToken}`;
-    }
-    return config;
-  },
-  (error: AxiosError): Promise<AxiosError> => {
-    return Promise.reject(error);
-  },
-);
+// // accessToken 을 보내지 않을 URL 목록
+// const excludeUrlEndings = ['/login'];
+//
+// // TODO : 임시 ACCESS_TOKEN 변경하기(헤더에 담겨오는 accessToken 가져오기)
+// axiosInstance.interceptors.request.use(
+//   (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
+//     const accessToken = process.env.REACT_APP_ACCESS_TOKEN;
+//     const isExcludedUrl = excludeUrlEndings.some(ending =>
+//       config.url?.endsWith(ending),
+//     );
+//
+//     if (accessToken && !isExcludedUrl) {
+//       if (!config.headers) {
+//         config.headers = {} as AxiosRequestHeaders;
+//       }
+//       (config.headers as AxiosRequestHeaders).Authorization =
+//         `Bearer ${accessToken}`;
+//     }
+//     return config;
+//   },
+//   (error: AxiosError): Promise<AxiosError> => {
+//     return Promise.reject(error);
+//   },
+// );
 
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse): AxiosResponse => {
