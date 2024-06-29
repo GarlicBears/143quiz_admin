@@ -17,10 +17,12 @@ import {
   FormControl,
   FormLabel,
   IconButton,
+  Flex,
 } from '@chakra-ui/react';
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import ConfirmModal from '../Components/common/ConfirmModal';
 import axiosInstance from '../API/axiosInstance';
+import Pagination from '../Components/common/Pagination';
 
 interface TopicItem {
   topicId: number;
@@ -56,6 +58,11 @@ const TopicSetting = () => {
   const [deleteRowIds, setDeleteRowIds] = useState<number[]>([]);
   const [image, setImage] = useState<File | null>(null);
   const [excel, setExcel] = useState<File | null>(null);
+
+  // 페이지네이션 상태
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 10;
 
   // API 호출 함수
   const getTopicData = useCallback(async () => {
@@ -215,6 +222,11 @@ const TopicSetting = () => {
     return <ChevronDownIcon />;
   };
 
+  // 페이지네이션 함수
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   // JSX 렌더링
   return (
     <>
@@ -246,12 +258,11 @@ const TopicSetting = () => {
         <TableContainer>
           <Table
             variant="simple"
-            size="md"
+            size="sm"
             colorScheme="blackAlpha"
             border="1px"
             borderColor="gray.400"
           >
-            <TableCaption>주제 관리 테이블</TableCaption>
             <Thead>
               <Tr>
                 <Th textAlign="center">
@@ -365,6 +376,13 @@ const TopicSetting = () => {
           </Table>
         </TableContainer>
       </VStack>
+      <Flex justify="center">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
+      </Flex>
       <ConfirmModal
         body="정말로 이 주제 및 하위 문제를 삭제하시겠습니까?"
         isOpen={isOpen}

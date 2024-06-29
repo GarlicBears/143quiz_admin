@@ -9,7 +9,9 @@ import {
   TableCaption,
   TableContainer,
   Button,
+  Flex,
 } from '@chakra-ui/react';
+import Pagination from '../Components/common/Pagination';
 
 interface DataItem {
   id: number;
@@ -63,6 +65,11 @@ const DataTable: React.FC = () => {
 
   const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
 
+  // 페이지네이션 상태
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 10;
+
   const requestSort = (key: keyof DataItem) => {
     let direction: 'ascending' | 'descending' = 'ascending';
     if (
@@ -91,58 +98,72 @@ const DataTable: React.FC = () => {
     return sortableItems;
   }, [data, sortConfig]);
 
+  // 페이지네이션 함수
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   return (
-    <TableContainer>
-      <Table
-        variant="simple"
-        size="md"
-        colorScheme="blackAlpha"
-        border="1px"
-        borderColor="gray.400"
-      >
-        <TableCaption>게임 통계 테이블</TableCaption>
-        <Thead>
-          <Tr>
-            <Th textAlign="center">
-              <Button onClick={() => requestSort('id')}>ID</Button>
-            </Th>
-            <Th textAlign="center">
-              <Button onClick={() => requestSort('주제명')}>주제명</Button>
-            </Th>
-            <Th textAlign="center">
-              <Button onClick={() => requestSort('게임실행횟수')}>
-                게임실행횟수
-              </Button>
-            </Th>
-            <Th textAlign="center">
-              <Button onClick={() => requestSort('게임완료율')}>
-                게임완료율
-              </Button>
-            </Th>
-            <Th textAlign="center">
-              <Button onClick={() => requestSort('게임당평균소요시간')}>
-                게임당평균소요시간
-              </Button>
-            </Th>
-            <Th textAlign="center">
-              <Button onClick={() => requestSort('정답률')}>정답률</Button>
-            </Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {sortedData.map(row => (
-            <Tr key={row.id}>
-              <Td textAlign="center">{row.id}</Td>
-              <Td textAlign="center">{row.주제명}</Td>
-              <Td textAlign="center">{row.게임실행횟수}</Td>
-              <Td textAlign="center">{row.게임완료율}</Td>
-              <Td textAlign="center">{row.게임당평균소요시간}</Td>
-              <Td textAlign="center">{row.정답률}</Td>
+    <>
+      <TableContainer>
+        <Table
+          variant="simple"
+          size="md"
+          colorScheme="blackAlpha"
+          border="1px"
+          borderColor="gray.400"
+        >
+          <TableCaption>게임 통계 테이블</TableCaption>
+          <Thead>
+            <Tr>
+              <Th textAlign="center">
+                <Button onClick={() => requestSort('id')}>ID</Button>
+              </Th>
+              <Th textAlign="center">
+                <Button onClick={() => requestSort('주제명')}>주제명</Button>
+              </Th>
+              <Th textAlign="center">
+                <Button onClick={() => requestSort('게임실행횟수')}>
+                  게임실행횟수
+                </Button>
+              </Th>
+              <Th textAlign="center">
+                <Button onClick={() => requestSort('게임완료율')}>
+                  게임완료율
+                </Button>
+              </Th>
+              <Th textAlign="center">
+                <Button onClick={() => requestSort('게임당평균소요시간')}>
+                  게임당평균소요시간
+                </Button>
+              </Th>
+              <Th textAlign="center">
+                <Button onClick={() => requestSort('정답률')}>정답률</Button>
+              </Th>
             </Tr>
-          ))}
-        </Tbody>
-      </Table>
-    </TableContainer>
+          </Thead>
+          <Tbody>
+            {sortedData.map(row => (
+              <Tr key={row.id}>
+                <Td textAlign="center">{row.id}</Td>
+                <Td textAlign="center">{row.주제명}</Td>
+                <Td textAlign="center">{row.게임실행횟수}</Td>
+                <Td textAlign="center">{row.게임완료율}</Td>
+                <Td textAlign="center">{row.게임당평균소요시간}</Td>
+                <Td textAlign="center">{row.정답률}</Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+      </TableContainer>
+      <Flex justify="center">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
+      </Flex>
+    </>
   );
 };
 

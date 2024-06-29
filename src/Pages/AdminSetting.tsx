@@ -15,9 +15,11 @@ import {
   VStack,
   HStack,
   IconButton,
+  Flex,
 } from '@chakra-ui/react';
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import ConfirmModal from '../Components/common/ConfirmModal';
+import Pagination from '../Components/common/Pagination';
 
 interface DataItem {
   id: number;
@@ -80,6 +82,11 @@ const AdminSetting = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [deleteRowIds, setDeleteRowIds] = useState<number[]>([]);
   const currentUserCanChangePermissions = true; // 현재 유저의 권한 변경 가능 여부 (예시)
+
+  // 페이지네이션 상태
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 10;
 
   const requestSort = (key: keyof DataItem) => {
     let direction: 'ascending' | 'descending' = 'ascending';
@@ -189,6 +196,11 @@ const AdminSetting = () => {
     );
   };
 
+  // 페이지네이션 함수
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   return (
     <>
       <VStack spacing={4} align="stretch">
@@ -202,12 +214,11 @@ const AdminSetting = () => {
         <TableContainer>
           <Table
             variant="simple"
-            size="md"
+            size="sm"
             colorScheme="blackAlpha"
             border="1px"
             borderColor="gray.400"
           >
-            <TableCaption>사용자 관리 테이블</TableCaption>
             <Thead>
               <Tr>
                 <Th textAlign="center">
@@ -344,6 +355,13 @@ const AdminSetting = () => {
           </Table>
         </TableContainer>
       </VStack>
+      <Flex justify="center">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
+      </Flex>
       <ConfirmModal
         body="이 회원을 삭제하시겠습니까?"
         isOpen={isOpen}
