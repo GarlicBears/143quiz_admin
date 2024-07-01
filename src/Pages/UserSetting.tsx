@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   Thead,
@@ -15,10 +15,12 @@ import {
   VStack,
   HStack,
   IconButton,
+  Flex,
 } from '@chakra-ui/react';
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import ConfirmModal from '../Components/common/ConfirmModal';
 import axiosInstance from '../API/axiosInstance';
+import Pagination from '../Components/common/Pagination';
 
 interface User {
   userId: number;
@@ -55,12 +57,20 @@ const UserSetting: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [deleteRowIds, setDeleteRowIds] = useState<number[]>([]);
 
+  // 페이지네이션 상태
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 10;
+
   // 유저 데이터 조회
   useEffect(() => {
     getUserData();
-  }, []);
+  }, [currentPage, sortConfig, itemsPerPage]);
 
   const getUserData = async () => {
+    const sortKey = sortConfig?.key ?? 'userId';
+    const sortDirection = sortConfig?.direction ?? 'ascending';
+
     try {
       const res = await axiosInstance.get<{
         sort: string;
@@ -69,7 +79,13 @@ const UserSetting: React.FC = () => {
         totalPage: number;
         totalCount: number;
         users: User[];
-      }>('/admin/user/');
+      }>('/admin/user/', {
+        params: {
+          sort: `${sortKey},${sortDirection}`,
+          pageNumber: currentPage - 1,
+          pageSize: itemsPerPage,
+        },
+      });
 
       const users = res.data.users.map(user => ({
         id: user.userId,
@@ -83,6 +99,7 @@ const UserSetting: React.FC = () => {
       }));
 
       setData(users);
+      setTotalPages(res.data.totalPage);
     } catch (error) {
       console.error('Error fetching user data:', error);
     }
@@ -111,45 +128,6 @@ const UserSetting: React.FC = () => {
     }
     return <ChevronDownIcon />;
   };
-
-  const filteredData = useMemo(() => {
-    return data.filter(
-      item =>
-        item.nickname?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.email?.toLowerCase().includes(searchTerm.toLowerCase()),
-    );
-  }, [data, searchTerm]);
-
-  const sortedData = useMemo(() => {
-    const sortableItems = [...filteredData];
-    if (sortConfig !== null) {
-      const { key, direction } = sortConfig;
-
-      sortableItems.sort((a, b) => {
-        const aValue = a[key];
-        const bValue = b[key];
-
-        if (aValue === null && bValue !== null) {
-          return direction === 'ascending' ? -1 : 1;
-        }
-        if (aValue !== null && bValue === null) {
-          return direction === 'ascending' ? 1 : -1;
-        }
-        if (aValue === null && bValue === null) {
-          return 0;
-        }
-
-        if (aValue! < bValue!) {
-          return direction === 'ascending' ? -1 : 1;
-        }
-        if (aValue! > bValue!) {
-          return direction === 'ascending' ? 1 : -1;
-        }
-        return 0;
-      });
-    }
-    return sortableItems;
-  }, [filteredData, sortConfig]);
 
   // 선택 삭제 기능
   const handleSelectAll = () => {
@@ -198,6 +176,11 @@ const UserSetting: React.FC = () => {
     onClose();
   };
 
+  // 페이지네이션 함수
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   return (
     <>
       <VStack spacing={4} align="stretch">
@@ -211,12 +194,11 @@ const UserSetting: React.FC = () => {
         <TableContainer>
           <Table
             variant="simple"
-            size="md"
+            size="sm"
             colorScheme="blackAlpha"
             border="1px"
             borderColor="gray.400"
           >
-            <TableCaption>사용자 관리 테이블</TableCaption>
             <Thead>
               <Tr>
                 <Th textAlign="center">
@@ -317,7 +299,7 @@ const UserSetting: React.FC = () => {
               </Tr>
             </Thead>
             <Tbody>
-              {sortedData.map(row => (
+              {data.map(row => (
                 <Tr key={row.id}>
                   <Td textAlign="center">
                     <Checkbox
@@ -348,6 +330,13 @@ const UserSetting: React.FC = () => {
           </Table>
         </TableContainer>
       </VStack>
+      <Flex justify="center">
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
+      </Flex>
       <ConfirmModal
         body="이 회원을 삭제하시겠습니까?"
         isOpen={isOpen}
