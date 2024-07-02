@@ -11,10 +11,11 @@ import Cookies from 'js-cookie';
 const axiosInstance = axios.create({
   baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8080/api',
   timeout: 5000,
+  withCredentials: true,
 });
 
 // accessToken을 보내지 않을 URL 목록
-const excludeUrlEndings = ['/login'];
+const excludeUrlEndings = ['/login', '/admin/reissue'];
 
 // 모든 요청에 대해 accessToken을 헤더에 추가
 axiosInstance.interceptors.request.use(
@@ -49,10 +50,9 @@ axiosInstance.interceptors.response.use(
     if (error.response?.status === 401) {
       try {
         // refresh token을 사용하여 accessToken 갱신
-        const response = await axiosInstance.get('/user/reissue');
-        const token = response.headers['authorization'];
-        if (token) {
-          const accessToken = token.split(' ')[1].replace(/%/g, '');
+        const response = await axiosInstance.get('/admin/reissue');
+        const accessToken = response.headers['authorization'];
+        if (accessToken) {
           Cookies.set('accessToken', accessToken, {
             expires: 1,
             secure: true,
@@ -69,7 +69,7 @@ axiosInstance.interceptors.response.use(
         console.error('Error refreshing token:', refreshError);
         // refresh token이 만료된 경우 로그인 페이지로 이동
         Cookies.remove('accessToken');
-        window.location.href = '/login';
+        // window.location.href = '/login';
       }
     }
     return Promise.reject(error);
