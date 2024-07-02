@@ -7,30 +7,13 @@ import axios, {
 } from 'axios';
 import Cookies from 'js-cookie';
 
+// axios 인스턴스 생성
 const axiosInstance = axios.create({
   baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8080/api',
-  timeout: 10000,
-  withCredentials: true,
+  timeout: 5000,
 });
 
-// 엑셀, 이미지 파일 올릴 경우 헤더 multipart/form-data로 설정
-axiosInstance.interceptors.request.use(
-  config => {
-    if (config.url) {
-      if (config.url.includes('/upload-excel')) {
-        config.headers['Content-Type'] = 'multipart/form-data';
-      } else {
-        config.headers['Content-Type'] = 'application/json';
-      }
-    }
-    return config;
-  },
-  error => {
-    return Promise.reject(error);
-  },
-);
-
-// accessToken 을 보내지 않을 URL 목록
+// accessToken을 보내지 않을 URL 목록
 const excludeUrlEndings = ['/login'];
 
 // 모든 요청에 대해 accessToken을 헤더에 추가
@@ -78,7 +61,7 @@ axiosInstance.interceptors.response.use(
 
           // 원래의 요청을 다시 시도
           if (error.config) {
-            error.config.headers.Authorization = `Bearer ${accessToken}`;
+            error.config.headers.set('Authorization', `Bearer ${accessToken}`);
             return axiosInstance.request(error.config);
           }
         }
@@ -88,38 +71,6 @@ axiosInstance.interceptors.response.use(
         Cookies.remove('accessToken');
         window.location.href = '/login';
       }
-    }
-    return Promise.reject(error);
-  },
-);
-
-axiosInstance.interceptors.response.use(
-  (response: AxiosResponse): AxiosResponse => {
-    return response;
-  },
-  (error: AxiosError): Promise<AxiosError> => {
-    if (error.response) {
-      const status = error.response.status;
-      const errorMessages: { [key: number]: string } = {
-        400: 'Bad Request',
-        401: 'Unauthorized',
-        403: 'Forbidden',
-        404: 'Not Found',
-        405: 'Method Not Allowed',
-        408: 'Request Timeout',
-        409: 'Conflict',
-        410: 'Gone',
-        429: 'Too Many Requests',
-        500: 'Internal Server Error',
-        501: 'Not Implemented',
-        502: 'Bad Gateway',
-        503: 'Service Unavailable',
-        504: 'Gateway Timeout',
-        505: 'HTTP Version Not Supported',
-      };
-
-      const message = errorMessages[status] || `Error (${status})`;
-      console.error(`${message}:`, error);
     }
     return Promise.reject(error);
   },
