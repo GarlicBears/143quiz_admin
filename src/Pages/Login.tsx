@@ -8,18 +8,57 @@ import {
   Text,
   Button,
   HStack,
+  useToast,
 } from '@chakra-ui/react';
+import axiosInstance from '../API/axiosInstance';
+import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const navigate = useNavigate();
+  const toast = useToast();
 
   const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    alert('로그인');
-    setErrorMsg('아이디 또는 비밀번호가 일치하지 않습니다.');
+    axiosInstance
+      .post('/admin/login', {
+        email,
+        password,
+      })
+      .then(response => {
+        const accessToken = response.headers['authorization'];
+        if (accessToken) {
+          Cookies.set('accessToken', accessToken, {
+            expires: 1,
+            secure: true,
+            sameSite: 'Strict',
+          });
+          navigate('/');
+        } else {
+          toast({
+            title: '로그인 실패',
+            description: '인증 토큰을 받지 못했습니다.',
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          });
+        }
+      })
+      .catch(error => {
+        console.error('로그인 에러:', error);
+        toast({
+          title: '로그인 실패',
+          description: '이메일 또는 비밀번호가 일치하지 않습니다.',
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        });
+      });
   };
+
   return (
     <>
       <CommonHeader />
@@ -40,15 +79,15 @@ const Login = () => {
             alignItems="center"
           >
             <form onSubmit={handleLogin}>
-              <FormControl id="username">
+              <FormControl id="email">
                 <HStack>
                   <FormLabel width="50%" fontWeight="bold">
-                    아이디
+                    이메일
                   </FormLabel>
                   <Input
-                    type="text"
-                    value={username}
-                    onChange={e => setUsername(e.target.value)}
+                    type="email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
                   />
                 </HStack>
               </FormControl>
