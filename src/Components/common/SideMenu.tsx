@@ -9,8 +9,7 @@ import adminImage from '../../Asset/image/admin.png';
 import editImage from '../../Asset/image/edit.png';
 import logoutImage from '../../Asset/image/logout.png';
 import toolsImage from '../../Asset/image/tools.png';
-import ConfirmModal from '../common/ConfirmModal';
-import axiosInstance from '../../API/axiosInstance';
+import LogoutModal from '../LogoutModal';
 
 interface NavItemProps {
   label: string;
@@ -47,22 +46,9 @@ const NavItem: React.FC<NavItemProps> = ({ label, to, icon, onClick }) => {
 
 const SideMenu: React.FC = () => {
   const [isLogoutModalOpen, setLogoutModalOpen] = useState(false);
-  const navigate = useNavigate();
 
   const openLogoutModal = () => setLogoutModalOpen(true);
   const closeLogoutModal = () => setLogoutModalOpen(false);
-
-  const handleLogout = async () => {
-    try {
-      await axiosInstance.delete('/admin/logout'); // 로그아웃 API 호출
-      document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 GMT'; // 쿠키 삭제
-      // navigate('/login'); // 로그인 페이지로 이동
-    } catch (error) {
-      console.error('로그아웃 실패:', error);
-    } finally {
-      closeLogoutModal();
-    }
-  };
 
   return (
     <Box w="250px" bg="gray.100" p="4">
@@ -94,12 +80,7 @@ const SideMenu: React.FC = () => {
         onClick={openLogoutModal}
       />
 
-      <ConfirmModal
-        body="정말 로그아웃 하시겠습니까?"
-        isOpen={isLogoutModalOpen}
-        onClose={closeLogoutModal}
-        onConfirm={handleLogout}
-      />
+      <LogoutModal isOpen={isLogoutModalOpen} onClose={closeLogoutModal} />
     </Box>
   );
 };
