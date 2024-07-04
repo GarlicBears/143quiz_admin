@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Flex, Text, Image } from '@chakra-ui/react';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link, useNavigate } from 'react-router-dom';
 import gridImage from '../../Asset/image/grid.png';
 import visitImage from '../../Asset/image/visit.png';
 import gameImage from '../../Asset/image/game.png';
