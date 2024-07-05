@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   Thead,
@@ -8,17 +8,21 @@ import {
   Td,
   TableCaption,
   TableContainer,
-  Button,
   Flex,
+  IconButton,
 } from '@chakra-ui/react';
 import axiosInstance from '../API/axiosInstance';
 import Pagination from '../Components/common/Pagination';
+import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 
 interface DataItem {
   topicId: number;
   topicText: string;
   topicUsageCount: number;
   topicQuestionCount: string;
+  topicAverageCompletePlayRate: string;
+  topicAverageCorrectionRate: string;
+  topicCompleteCount: number;
 }
 
 interface SortConfig {
@@ -45,12 +49,17 @@ const DataTable: React.FC = () => {
         case 'topicUsageCount':
           sortValue = `usageCount${dir}`;
           break;
-        case 'topicQuestionCount':
-          sortValue = `questionCount${dir}`;
+        case 'topicAverageCompletePlayRate':
+          sortValue = `averageCompletePlayRate${dir}`;
           break;
-        case 'topicId':
+        case 'topicAverageCorrectionRate':
+          sortValue = `averageCorrectionRate${dir}`;
+          break;
+        case 'topicCompleteCount':
+          sortValue = `completeCount${dir}`;
+          break;
         default:
-          sortValue = `id${dir}`;
+          sortValue = `updatedAt${dir}`;
           break;
       }
     }
@@ -63,7 +72,20 @@ const DataTable: React.FC = () => {
           pageSize: itemsPerPage,
         },
       });
-      const { topics, totalPage } = response.data;
+      const { stats, totalPage } = response.data;
+      const topics = stats.map((topic: any) => ({
+        topicId: topic.topicId,
+        topicText: topic.title,
+        topicUsageCount: topic.usageCount,
+        topicQuestionCount: topic.completeCount,
+        topicAverageCompletePlayRate: parseFloat(
+          topic.averageCompletePlayRate,
+        ).toFixed(2),
+        topicAverageCorrectionRate: parseFloat(
+          topic.averageCorrectionRate,
+        ).toFixed(2),
+        topicCompleteCount: topic.completeCount,
+      }));
       setData(topics);
       setTotalPages(totalPage);
     } catch (error) {
@@ -75,6 +97,7 @@ const DataTable: React.FC = () => {
     fetchData();
   }, [sortConfig, currentPage]);
 
+  // 정렬 기능
   const requestSort = (key: keyof DataItem) => {
     let direction: 'ascending' | 'descending' = 'ascending';
     if (
@@ -85,6 +108,17 @@ const DataTable: React.FC = () => {
       direction = 'descending';
     }
     setSortConfig({ key, direction });
+  };
+
+  const renderSortIcon = (key: keyof DataItem) => {
+    if (sortConfig?.key === key) {
+      return sortConfig.direction === 'ascending' ? (
+        <ChevronUpIcon />
+      ) : (
+        <ChevronDownIcon />
+      );
+    }
+    return <ChevronUpIcon />;
   };
 
   return (
@@ -100,21 +134,75 @@ const DataTable: React.FC = () => {
           <TableCaption>게임 통계 테이블</TableCaption>
           <Thead>
             <Tr>
-              <Th textAlign="center">
-                <Button onClick={() => requestSort('topicId')}>ID</Button>
+              <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                ID
+                <IconButton
+                  icon={renderSortIcon('topicId')}
+                  onClick={() => requestSort('topicId')}
+                  aria-label="Sort ID"
+                  size="xs"
+                  ml={2}
+                />
               </Th>
-              <Th textAlign="center">
-                <Button onClick={() => requestSort('topicText')}>주제명</Button>
+              <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                주제명
+                <IconButton
+                  icon={renderSortIcon('topicText')}
+                  onClick={() => requestSort('topicText')}
+                  aria-label="Sort 주제명"
+                  size="xs"
+                  ml={2}
+                />
               </Th>
-              <Th textAlign="center">
-                <Button onClick={() => requestSort('topicUsageCount')}>
-                  게임실행횟수
-                </Button>
+              <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                게임실행횟수
+                <IconButton
+                  icon={renderSortIcon('topicUsageCount')}
+                  onClick={() => requestSort('topicUsageCount')}
+                  aria-label="Sort 게임실행횟수"
+                  size="xs"
+                  ml={2}
+                />
               </Th>
-              <Th textAlign="center">
-                <Button onClick={() => requestSort('topicQuestionCount')}>
-                  게임완료율
-                </Button>
+              <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                문제 수
+                <IconButton
+                  icon={renderSortIcon('topicQuestionCount')}
+                  onClick={() => requestSort('topicQuestionCount')}
+                  aria-label="Sort 문제 수"
+                  size="xs"
+                  ml={2}
+                />
+              </Th>
+              <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                평균게임완료율
+                <IconButton
+                  icon={renderSortIcon('topicAverageCompletePlayRate')}
+                  onClick={() => requestSort('topicAverageCompletePlayRate')}
+                  aria-label="Sort 평균게임완료율"
+                  size="xs"
+                  ml={2}
+                />
+              </Th>
+              <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                평균정답률
+                <IconButton
+                  icon={renderSortIcon('topicAverageCorrectionRate')}
+                  onClick={() => requestSort('topicAverageCorrectionRate')}
+                  aria-label="Sort 평균정답률"
+                  size="xs"
+                  ml={2}
+                />
+              </Th>
+              <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                게임완료횟수
+                <IconButton
+                  icon={renderSortIcon('topicCompleteCount')}
+                  onClick={() => requestSort('topicCompleteCount')}
+                  aria-label="Sort 게임완료횟수"
+                  size="xs"
+                  ml={2}
+                />
               </Th>
             </Tr>
           </Thead>
@@ -125,6 +213,9 @@ const DataTable: React.FC = () => {
                 <Td textAlign="center">{row.topicText}</Td>
                 <Td textAlign="center">{row.topicUsageCount}</Td>
                 <Td textAlign="center">{row.topicQuestionCount}</Td>
+                <Td textAlign="center">{row.topicAverageCompletePlayRate}</Td>
+                <Td textAlign="center">{row.topicAverageCorrectionRate}</Td>
+                <Td textAlign="center">{row.topicCompleteCount}</Td>
               </Tr>
             ))}
           </Tbody>
