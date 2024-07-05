@@ -1,5 +1,3 @@
-// src/Pages/Visitor.tsx
-
 import React from 'react';
 import { SimpleGrid, GridItem, Box } from '@chakra-ui/react';
 import ChartComponent from '../Components/common/Chart';

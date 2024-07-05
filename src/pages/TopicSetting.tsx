@@ -21,7 +21,7 @@ import {
 } from '@chakra-ui/react';
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import ConfirmModal from '../Components/common/ConfirmModal';
-import axiosInstance from '../API/axiosInstance';
+import axiosInstance from '../api/axiosInstance';
 import Pagination from '../Components/common/Pagination';
 
 interface TopicItem {

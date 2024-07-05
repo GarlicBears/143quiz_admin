@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import ConfirmModal from './common/ConfirmModal';
 import { Box, Text } from '@chakra-ui/react';
 import Cookies from 'js-cookie';
-import axiosInstance from '../API/axiosInstance';
+import axiosInstance from '../api/axiosInstance';
 
 interface LogoutModalProps {
   isOpen: boolean;
