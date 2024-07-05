@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Table,
   Thead,
@@ -11,15 +11,14 @@ import {
   Button,
   Flex,
 } from '@chakra-ui/react';
+import axios from 'axios';
 import Pagination from '../Components/common/Pagination';
 
 interface DataItem {
-  id: number;
-  주제명: string;
-  게임실행횟수: number;
-  게임완료율: string;
-  게임당평균소요시간: string;
-  정답률: string;
+  topicId: number;
+  topicText: string;
+  topicUsageCount: number;
+  topicQuestionCount: string;
 }
 
 interface SortConfig {
@@ -28,47 +27,53 @@ interface SortConfig {
 }
 
 const DataTable: React.FC = () => {
-  const [data, setData] = useState<DataItem[]>([
-    {
-      id: 1,
-      주제명: '동물1',
-      게임실행횟수: 28,
-      게임완료율: `65%`,
-      게임당평균소요시간: `3.12 분`,
-      정답률: `90%`,
-    },
-    {
-      id: 2,
-      주제명: '동물2',
-      게임실행횟수: 34,
-      게임완료율: `55%`,
-      게임당평균소요시간: `10.10 분`,
-      정답률: `90%`,
-    },
-    {
-      id: 3,
-      주제명: '나무',
-      게임실행횟수: 22,
-      게임완료율: `55%`,
-      게임당평균소요시간: `13.12 분`,
-      정답률: `90%`,
-    },
-    {
-      id: 4,
-      주제명: '장소',
-      게임실행횟수: 45,
-      게임완료율: `35%`,
-      게임당평균소요시간: `9.12 분`,
-      정답률: `90%`,
-    },
-  ]);
-
+  const [data, setData] = useState<DataItem[]>([]);
   const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
-
-  // 페이지네이션 상태
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 10;
+
+  const fetchData = async () => {
+    let sortValue = 'usageCountAsc';
+    if (sortConfig) {
+      const { key, direction } = sortConfig;
+      const dir = direction === 'ascending' ? 'Asc' : 'Desc';
+      switch (key) {
+        case 'topicText':
+          sortValue = `title${dir}`;
+          break;
+        case 'topicUsageCount':
+          sortValue = `usageCount${dir}`;
+          break;
+        case 'topicQuestionCount':
+          sortValue = `questionCount${dir}`;
+          break;
+        case 'topicId':
+        default:
+          sortValue = `id${dir}`;
+          break;
+      }
+    }
+
+    try {
+      const response = await axios.get('/admin/stat/game', {
+        params: {
+          sort: sortValue,
+          pageNumber: currentPage - 1,
+          pageSize: itemsPerPage,
+        },
+      });
+      const { topics, totalPage } = response.data;
+      setData(topics);
+      setTotalPages(totalPage);
+    } catch (error) {
+      console.error('Failed to fetch data', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [sortConfig, currentPage]);
 
   const requestSort = (key: keyof DataItem) => {
     let direction: 'ascending' | 'descending' = 'ascending';
@@ -80,27 +85,6 @@ const DataTable: React.FC = () => {
       direction = 'descending';
     }
     setSortConfig({ key, direction });
-  };
-
-  const sortedData = useMemo(() => {
-    const sortableItems = [...data];
-    if (sortConfig !== null) {
-      sortableItems.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
-          return sortConfig.direction === 'ascending' ? -1 : 1;
-        }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
-          return sortConfig.direction === 'ascending' ? 1 : -1;
-        }
-        return 0;
-      });
-    }
-    return sortableItems;
-  }, [data, sortConfig]);
-
-  // 페이지네이션 함수
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
   };
 
   return (
@@ -117,40 +101,30 @@ const DataTable: React.FC = () => {
           <Thead>
             <Tr>
               <Th textAlign="center">
-                <Button onClick={() => requestSort('id')}>ID</Button>
+                <Button onClick={() => requestSort('topicId')}>ID</Button>
               </Th>
               <Th textAlign="center">
-                <Button onClick={() => requestSort('주제명')}>주제명</Button>
+                <Button onClick={() => requestSort('topicText')}>주제명</Button>
               </Th>
               <Th textAlign="center">
-                <Button onClick={() => requestSort('게임실행횟수')}>
+                <Button onClick={() => requestSort('topicUsageCount')}>
                   게임실행횟수
                 </Button>
               </Th>
               <Th textAlign="center">
-                <Button onClick={() => requestSort('게임완료율')}>
+                <Button onClick={() => requestSort('topicQuestionCount')}>
                   게임완료율
                 </Button>
-              </Th>
-              <Th textAlign="center">
-                <Button onClick={() => requestSort('게임당평균소요시간')}>
-                  게임당평균소요시간
-                </Button>
-              </Th>
-              <Th textAlign="center">
-                <Button onClick={() => requestSort('정답률')}>정답률</Button>
               </Th>
             </Tr>
           </Thead>
           <Tbody>
-            {sortedData.map(row => (
-              <Tr key={row.id}>
-                <Td textAlign="center">{row.id}</Td>
-                <Td textAlign="center">{row.주제명}</Td>
-                <Td textAlign="center">{row.게임실행횟수}</Td>
-                <Td textAlign="center">{row.게임완료율}</Td>
-                <Td textAlign="center">{row.게임당평균소요시간}</Td>
-                <Td textAlign="center">{row.정답률}</Td>
+            {data.map(row => (
+              <Tr key={row.topicId}>
+                <Td textAlign="center">{row.topicId}</Td>
+                <Td textAlign="center">{row.topicText}</Td>
+                <Td textAlign="center">{row.topicUsageCount}</Td>
+                <Td textAlign="center">{row.topicQuestionCount}</Td>
               </Tr>
             ))}
           </Tbody>
@@ -160,7 +134,7 @@ const DataTable: React.FC = () => {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          onPageChange={handlePageChange}
+          onPageChange={setCurrentPage}
         />
       </Flex>
     </>
