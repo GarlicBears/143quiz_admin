@@ -11,7 +11,7 @@ import {
   Button,
   Flex,
 } from '@chakra-ui/react';
-import axios from 'axios';
+import axiosInstance from '../API/axiosInstance';
 import Pagination from '../Components/common/Pagination';
 
 interface DataItem {
@@ -56,7 +56,7 @@ const DataTable: React.FC = () => {
     }
 
     try {
-      const response = await axios.get('/admin/stat/game', {
+      const response = await axiosInstance.get('/admin/stat/game', {
         params: {
           sort: sortValue,
           pageNumber: currentPage - 1,
@@ -119,7 +119,7 @@ const DataTable: React.FC = () => {
             </Tr>
           </Thead>
           <Tbody>
-            {data.map(row => (
+            {data?.map(row => (
               <Tr key={row.topicId}>
                 <Td textAlign="center">{row.topicId}</Td>
                 <Td textAlign="center">{row.topicText}</Td>
