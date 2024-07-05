@@ -19,11 +19,12 @@ const LogoutModal: React.FC<LogoutModalProps> = ({ isOpen, onClose }) => {
     });
 
     // 쿠키 전부 삭제하기
-    const allCookies = Cookies.get();
-    console.log('쿠키 목록:', allCookies);
-    for (const cookieName in allCookies) {
-      Cookies.remove(cookieName, { path: '/' });
-    }
+    Cookies.remove('accessToken');
+    const cookieOptions = {
+      domain: 'localhost8080:/', // 쿠키를 설정할 때 사용한 도메인으로 변경
+      path: '/login', // 쿠키를 설정할 때 사용한 경로로 변경
+    };
+    Cookies.remove('refreshToken', cookieOptions);
 
     onClose();
     navigate('/login');

@@ -9,18 +9,21 @@ import UserSetting from './Pages/UserSetting';
 import AdminSetting from './Pages/AdminSetting';
 import TopicSetting from './Pages/TopicSetting';
 import Error from './Pages/Error';
+import PrivateRoute from './Components/PrivateRoute';
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Layout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="/visitors" element={<Visitor />} />
-          <Route path="/gamestats" element={<GameStat />} />
-          <Route path="/usersetting" element={<UserSetting />} />
-          <Route path="/adminsetting" element={<AdminSetting />} />
-          <Route path="/topicsetting" element={<TopicSetting />} />
+          <Route path="/" element={<PrivateRoute />}>
+            <Route index element={<Dashboard />} />
+            <Route path="/visitors" element={<Visitor />} />
+            <Route path="/gamestats" element={<GameStat />} />
+            <Route path="/usersetting" element={<UserSetting />} />
+            <Route path="/adminsetting" element={<AdminSetting />} />
+            <Route path="/topicsetting" element={<TopicSetting />} />
+          </Route>
         </Route>
 
         <Route path="/login" element={<Login />} />
