@@ -1,84 +1,76 @@
 import axios, {
   AxiosError,
-  AxiosRequestHeaders,
+  AxiosRequestConfig,
   AxiosResponse,
   InternalAxiosRequestConfig,
+  AxiosHeaders,
 } from 'axios';
+import Cookies from 'js-cookie';
 
+// axios 인스턴스 생성
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:8080/api',
-  timeout: 10000,
+  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:8080/api',
+  timeout: 5000,
   withCredentials: true,
 });
 
+// accessToken을 보내지 않을 URL 목록
+const excludeUrlEndings = ['/login', '/admin/reissue'];
+
+// 모든 요청에 대해 accessToken을 헤더에 추가
 axiosInstance.interceptors.request.use(
-  config => {
-    if (config.url) {
-      if (config.url.includes('/upload-excel')) {
-        config.headers['Content-Type'] = 'multipart/form-data';
-      } else {
-        config.headers['Content-Type'] = 'application/json';
+  (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
+    // 쿠키에서 accessToken 읽어오기
+    const accessToken = Cookies.get('accessToken'); // 쿠키에서 토큰 가져오기.
+
+    const isExcludedUrl = excludeUrlEndings.some(ending =>
+      config.url?.endsWith(ending),
+    );
+
+    if (accessToken && !isExcludedUrl) {
+      if (!config.headers) {
+        config.headers = new AxiosHeaders();
       }
+      config.headers.set('Authorization', `Bearer ${accessToken}`);
     }
     return config;
   },
-  error => {
+  (error: AxiosError): Promise<AxiosError> => {
     return Promise.reject(error);
   },
 );
 
-// // accessToken 을 보내지 않을 URL 목록
-// const excludeUrlEndings = ['/login'];
-//
-// // TODO : 임시 ACCESS_TOKEN 변경하기(헤더에 담겨오는 accessToken 가져오기)
-// axiosInstance.interceptors.request.use(
-//   (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
-//     const accessToken = process.env.REACT_APP_ACCESS_TOKEN;
-//     const isExcludedUrl = excludeUrlEndings.some(ending =>
-//       config.url?.endsWith(ending),
-//     );
-//
-//     if (accessToken && !isExcludedUrl) {
-//       if (!config.headers) {
-//         config.headers = {} as AxiosRequestHeaders;
-//       }
-//       (config.headers as AxiosRequestHeaders).Authorization =
-//         `Bearer ${accessToken}`;
-//     }
-//     return config;
-//   },
-//   (error: AxiosError): Promise<AxiosError> => {
-//     return Promise.reject(error);
-//   },
-// );
-
+// 응답 인터셉터 추가
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse): AxiosResponse => {
     return response;
   },
-  (error: AxiosError): Promise<AxiosError> => {
-    if (error.response) {
-      const status = error.response.status;
-      const errorMessages: { [key: number]: string } = {
-        400: 'Bad Request',
-        401: 'Unauthorized',
-        403: 'Forbidden',
-        404: 'Not Found',
-        405: 'Method Not Allowed',
-        408: 'Request Timeout',
-        409: 'Conflict',
-        410: 'Gone',
-        429: 'Too Many Requests',
-        500: 'Internal Server Error',
-        501: 'Not Implemented',
-        502: 'Bad Gateway',
-        503: 'Service Unavailable',
-        504: 'Gateway Timeout',
-        505: 'HTTP Version Not Supported',
-      };
+  async (error: AxiosError): Promise<AxiosError> => {
+    // 에러코드 401이 발생하면 refresh token을 사용하여 accessToken을 갱신
+    if (error.response?.status === 401) {
+      try {
+        // refresh token을 사용하여 accessToken 갱신
+        const response = await axiosInstance.get('/admin/reissue');
+        const accessToken = response.headers['authorization'];
+        if (accessToken) {
+          Cookies.set('accessToken', accessToken, {
+            expires: 1,
+            secure: true,
+            sameSite: 'Strict',
+          });
 
-      const message = errorMessages[status] || `Error (${status})`;
-      console.error(`${message}:`, error);
+          // 원래의 요청을 다시 시도
+          if (error.config) {
+            error.config.headers.set('Authorization', `Bearer ${accessToken}`);
+            return axiosInstance.request(error.config);
+          }
+        }
+      } catch (refreshError) {
+        console.error('Error refreshing token:', refreshError);
+        // refresh token이 만료된 경우 로그인 페이지로 이동
+        Cookies.remove('accessToken');
+        // window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   },

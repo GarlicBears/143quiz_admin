@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Table,
   Thead,
@@ -20,15 +20,14 @@ import {
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import ConfirmModal from '../Components/common/ConfirmModal';
 import Pagination from '../Components/common/Pagination';
+import axiosInstance from '../API/axiosInstance';
 
 interface DataItem {
-  id: number;
-  관리자명: string;
-  이메일: string;
-  관리자생성일: string;
-  마지막관리자수정일: string | null;
-  관리자상태: string;
-  권한: string;
+  adminId: number;
+  adminEmail: string;
+  adminActive: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface SortConfig {
@@ -37,44 +36,7 @@ interface SortConfig {
 }
 
 const AdminSetting = () => {
-  const [data, setData] = useState<DataItem[]>([
-    {
-      id: 1,
-      관리자명: 'test1',
-      이메일: 'dsafsfd@gamol.com',
-      관리자생성일: `2023-01-01`,
-      마지막관리자수정일: `2024-01-01`,
-      관리자상태: `정상`,
-      권한: '열람',
-    },
-    {
-      id: 2,
-      관리자명: 'test2',
-      이메일: 'asdf@gamol.com',
-      관리자생성일: `2023-02-01`,
-      마지막관리자수정일: `2024-02-01`,
-      관리자상태: `정상`,
-      권한: '편집',
-    },
-    {
-      id: 3,
-      관리자명: 'test3',
-      이메일: 'eeeeee@gamol.com',
-      관리자생성일: `2024-01-04`,
-      마지막관리자수정일: `2024-03-01`,
-      관리자상태: `탈퇴`,
-      권한: '열람',
-    },
-    {
-      id: 4,
-      관리자명: 'admin1',
-      이메일: 'admin@gamol.com',
-      관리자생성일: `2021-01-01`,
-      마지막관리자수정일: `2024-05-01`,
-      관리자상태: `정상`,
-      권한: '편집',
-    },
-  ]);
+  const [data, setData] = useState<DataItem[]>([]);
 
   const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
@@ -87,6 +49,15 @@ const AdminSetting = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 10;
+
+  // 관리자 회원 목록 조회
+  useEffect(() => {
+    axiosInstance.get('/admin/').then(res => {
+      setData(res.data.admins);
+      console.log(res.data);
+      setTotalPages(res.data.totalPage);
+    });
+  }, []);
 
   const requestSort = (key: keyof DataItem) => {
     let direction: 'ascending' | 'descending' = 'ascending';
@@ -111,14 +82,14 @@ const AdminSetting = () => {
     return <ChevronDownIcon />;
   };
 
+  // 관리자 이메일 검색 기능
   const filteredData = useMemo(() => {
-    return data.filter(
-      item =>
-        item.관리자명.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.이메일.toLowerCase().includes(searchTerm.toLowerCase()),
+    return data.filter(item =>
+      item.adminEmail.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [data, searchTerm]);
 
+  // 정렬 기능
   const sortedData = useMemo(() => {
     const sortableItems = [...filteredData];
     if (sortConfig !== null) {
@@ -154,7 +125,7 @@ const AdminSetting = () => {
     if (selectedRows.length === data.length) {
       setSelectedRows([]);
     } else {
-      setSelectedRows(data.map(item => item.id));
+      setSelectedRows(data.map(item => item.adminId));
     }
   };
 
@@ -171,11 +142,7 @@ const AdminSetting = () => {
 
   const handleBulkDelete = () => {
     const deletableRows = selectedRows.filter(
-      id =>
-        !(
-          data.find(row => row.id === id)?.관리자상태 === '탈퇴' ||
-          data.find(row => row.id === id)?.권한 === '관리자'
-        ),
+      id => !(data.find(row => row.adminId === id)?.adminActive === '탈퇴'),
     );
     setDeleteRowIds(deletableRows);
     onOpen();
@@ -183,7 +150,17 @@ const AdminSetting = () => {
 
   const confirmDelete = () => {
     console.log('이 회원을 삭제하시겠습니까?', deleteRowIds);
-    setData(prevData => prevData.filter(row => !deleteRowIds.includes(row.id)));
+    axiosInstance
+      .delete(`/admin/delete/${deleteRowIds}`)
+      .then(res => {
+        console.log(res.data);
+      })
+      .catch(err => {
+        console.error(err);
+      });
+    // setData(prevData =>
+    //   prevData.filter(row => !deleteRowIds.includes(row.adminId)),
+    // );
     setSelectedRows([]);
     onClose();
   };
@@ -191,7 +168,7 @@ const AdminSetting = () => {
   const changePermission = (id: number, newPermission: string) => {
     setData(prevData =>
       prevData.map(row =>
-        row.id === id ? { ...row, 권한: newPermission } : row,
+        row.adminId === id ? { ...row, 권한: newPermission } : row,
       ),
     );
   };
@@ -230,19 +207,9 @@ const AdminSetting = () => {
                 <Th textAlign="center" fontWeight="bold" fontSize="1rem">
                   ID
                   <IconButton
-                    icon={renderSortIcon('id')}
-                    onClick={() => requestSort('id')}
+                    icon={renderSortIcon('adminId')}
+                    onClick={() => requestSort('adminId')}
                     aria-label="Sort ID"
-                    size="xs"
-                    ml={2}
-                  />
-                </Th>
-                <Th textAlign="center" fontWeight="bold" fontSize="1rem">
-                  관리자명
-                  <IconButton
-                    icon={renderSortIcon('관리자명')}
-                    onClick={() => requestSort('관리자명')}
-                    aria-label="Sort 관리자명"
                     size="xs"
                     ml={2}
                   />
@@ -250,8 +217,8 @@ const AdminSetting = () => {
                 <Th textAlign="center" fontWeight="bold" fontSize="1rem">
                   이메일
                   <IconButton
-                    icon={renderSortIcon('이메일')}
-                    onClick={() => requestSort('이메일')}
+                    icon={renderSortIcon('adminEmail')}
+                    onClick={() => requestSort('adminEmail')}
                     aria-label="Sort 이메일"
                     size="xs"
                     ml={2}
@@ -260,18 +227,18 @@ const AdminSetting = () => {
                 <Th textAlign="center" fontWeight="bold" fontSize="1rem">
                   관리자생성일
                   <IconButton
-                    icon={renderSortIcon('관리자생성일')}
-                    onClick={() => requestSort('관리자생성일')}
+                    icon={renderSortIcon('createdAt')}
+                    onClick={() => requestSort('createdAt')}
                     aria-label="Sort 관리자생성일"
                     size="xs"
                     ml={2}
                   />
                 </Th>
                 <Th textAlign="center" fontWeight="bold" fontSize="1rem">
-                  마지막관리자수정일
+                  관리자수정일
                   <IconButton
-                    icon={renderSortIcon('마지막관리자수정일')}
-                    onClick={() => requestSort('마지막관리자수정일')}
+                    icon={renderSortIcon('updatedAt')}
+                    onClick={() => requestSort('updatedAt')}
                     aria-label="Sort 마지막관리자수정일"
                     size="xs"
                     ml={2}
@@ -280,23 +247,23 @@ const AdminSetting = () => {
                 <Th textAlign="center" fontWeight="bold" fontSize="1rem">
                   관리자상태
                   <IconButton
-                    icon={renderSortIcon('관리자상태')}
-                    onClick={() => requestSort('관리자상태')}
+                    icon={renderSortIcon('adminActive')}
+                    onClick={() => requestSort('adminActive')}
                     aria-label="Sort 관리자상태"
                     size="xs"
                     ml={2}
                   />
                 </Th>
-                <Th textAlign="center" fontWeight="bold" fontSize="1rem">
-                  권한
-                  <IconButton
-                    icon={renderSortIcon('권한')}
-                    onClick={() => requestSort('권한')}
-                    aria-label="Sort 권한"
-                    size="xs"
-                    ml={2}
-                  />
-                </Th>
+                {/*<Th textAlign="center" fontWeight="bold" fontSize="1rem">*/}
+                {/*  권한*/}
+                {/*  <IconButton*/}
+                {/*    icon={renderSortIcon('권한')}*/}
+                {/*    onClick={() => requestSort('권한')}*/}
+                {/*    aria-label="Sort 권한"*/}
+                {/*    size="xs"*/}
+                {/*    ml={2}*/}
+                {/*  />*/}
+                {/*</Th>*/}
                 <Th textAlign="center">
                   <Button
                     colorScheme="red"
@@ -310,41 +277,41 @@ const AdminSetting = () => {
             </Thead>
             <Tbody>
               {sortedData.map(row => (
-                <Tr key={row.id}>
+                <Tr key={row.adminId}>
                   <Td textAlign="center">
                     <Checkbox
-                      isChecked={selectedRows.includes(row.id)}
-                      onChange={() => handleSelectRow(row.id)}
+                      isChecked={selectedRows.includes(row.adminId)}
+                      onChange={() => handleSelectRow(row.adminId)}
                     />
                   </Td>
-                  <Td textAlign="center">{row.id}</Td>
-                  <Td textAlign="center">{row.관리자명}</Td>
-                  <Td textAlign="center">{row.이메일}</Td>
-                  <Td textAlign="center">{row.관리자생성일}</Td>
-                  <Td textAlign="center">{row.마지막관리자수정일}</Td>
-                  <Td textAlign="center">{row.관리자상태}</Td>
-                  <Td textAlign="center">{row.권한}</Td>
+                  <Td textAlign="center">{row.adminId}</Td>
+                  {/*<Td textAlign="center">{row.관리자명}</Td>*/}
+                  <Td textAlign="center">{row.adminEmail}</Td>
+                  <Td textAlign="center">{row.createdAt}</Td>
+                  <Td textAlign="center">{row.updatedAt}</Td>
+                  <Td textAlign="center">{row.adminActive}</Td>
+                  {/*<Td textAlign="center">{row.권한}</Td>*/}
                   <Td textAlign="center">
-                    <Button
-                      colorScheme="blue"
-                      onClick={() =>
-                        changePermission(
-                          row.id,
-                          row.권한 === '열람' ? '편집' : '열람',
-                        )
-                      }
-                      isDisabled={!currentUserCanChangePermissions}
-                    >
-                      권한변경
-                    </Button>
+                    {/*<Button*/}
+                    {/*  colorScheme="blue"*/}
+                    {/*  onClick={() =>*/}
+                    {/*    changePermission(*/}
+                    {/*      row.adminId,*/}
+                    {/*      row.권한 === '열람' ? '편집' : '열람',*/}
+                    {/*    )*/}
+                    {/*  }*/}
+                    {/*  isDisabled={!currentUserCanChangePermissions}*/}
+                    {/*>*/}
+                    {/*  권한변경*/}
+                    {/*</Button>*/}
                   </Td>
                   <Td textAlign="center">
                     <Button
                       colorScheme="red"
-                      onClick={() => handleDelete(row.id)}
-                      isDisabled={
-                        row.관리자상태 === '탈퇴' || row.권한 === '관리자'
-                      }
+                      onClick={() => handleDelete(row.adminId)}
+                      // isDisabled={
+                      //   row.adminActive === 'active' || row.권한 === '관리자'
+                      // }
                     >
                       삭제
                     </Button>
