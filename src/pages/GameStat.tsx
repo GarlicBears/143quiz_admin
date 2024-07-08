@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Table,
   Thead,
@@ -8,18 +8,21 @@ import {
   Td,
   TableCaption,
   TableContainer,
-  Button,
   Flex,
+  IconButton,
 } from '@chakra-ui/react';
+import axiosInstance from '../api/axiosInstance';
 import Pagination from '../Components/common/Pagination';
+import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 
 interface DataItem {
-  id: number;
-  주제명: string;
-  게임실행횟수: number;
-  게임완료율: string;
-  게임당평균소요시간: string;
-  정답률: string;
+  topicId: number;
+  topicText: string;
+  topicUsageCount: number;
+  topicQuestionCount: string;
+  topicAverageCompletePlayRate: string;
+  topicAverageCorrectionRate: string;
+  topicCompleteCount: number;
 }
 
 interface SortConfig {
@@ -28,48 +31,73 @@ interface SortConfig {
 }
 
 const DataTable: React.FC = () => {
-  const [data, setData] = useState<DataItem[]>([
-    {
-      id: 1,
-      주제명: '동물1',
-      게임실행횟수: 28,
-      게임완료율: `65%`,
-      게임당평균소요시간: `3.12 분`,
-      정답률: `90%`,
-    },
-    {
-      id: 2,
-      주제명: '동물2',
-      게임실행횟수: 34,
-      게임완료율: `55%`,
-      게임당평균소요시간: `10.10 분`,
-      정답률: `90%`,
-    },
-    {
-      id: 3,
-      주제명: '나무',
-      게임실행횟수: 22,
-      게임완료율: `55%`,
-      게임당평균소요시간: `13.12 분`,
-      정답률: `90%`,
-    },
-    {
-      id: 4,
-      주제명: '장소',
-      게임실행횟수: 45,
-      게임완료율: `35%`,
-      게임당평균소요시간: `9.12 분`,
-      정답률: `90%`,
-    },
-  ]);
-
+  const [data, setData] = useState<DataItem[]>([]);
   const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
-
-  // 페이지네이션 상태
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 10;
 
+  const fetchData = async () => {
+    let sortValue = 'usageCountAsc';
+    if (sortConfig) {
+      const { key, direction } = sortConfig;
+      const dir = direction === 'ascending' ? 'Asc' : 'Desc';
+      switch (key) {
+        case 'topicText':
+          sortValue = `title${dir}`;
+          break;
+        case 'topicUsageCount':
+          sortValue = `usageCount${dir}`;
+          break;
+        case 'topicAverageCompletePlayRate':
+          sortValue = `averageCompletePlayRate${dir}`;
+          break;
+        case 'topicAverageCorrectionRate':
+          sortValue = `averageCorrectionRate${dir}`;
+          break;
+        case 'topicCompleteCount':
+          sortValue = `completeCount${dir}`;
+          break;
+        default:
+          sortValue = `updatedAt${dir}`;
+          break;
+      }
+    }
+
+    try {
+      const response = await axiosInstance.get('/admin/stat/game', {
+        params: {
+          sort: sortValue,
+          pageNumber: currentPage - 1,
+          pageSize: itemsPerPage,
+        },
+      });
+      const { stats, totalPage } = response.data;
+      const topics = stats.map((topic: any) => ({
+        topicId: topic.topicId,
+        topicText: topic.title,
+        topicUsageCount: topic.usageCount,
+        topicQuestionCount: topic.completeCount,
+        topicAverageCompletePlayRate: parseFloat(
+          topic.averageCompletePlayRate,
+        ).toFixed(2),
+        topicAverageCorrectionRate: parseFloat(
+          topic.averageCorrectionRate,
+        ).toFixed(2),
+        topicCompleteCount: topic.completeCount,
+      }));
+      setData(topics);
+      setTotalPages(totalPage);
+    } catch (error) {
+      console.error('Failed to fetch data', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [sortConfig, currentPage]);
+
+  // 정렬 기능
   const requestSort = (key: keyof DataItem) => {
     let direction: 'ascending' | 'descending' = 'ascending';
     if (
@@ -82,25 +110,15 @@ const DataTable: React.FC = () => {
     setSortConfig({ key, direction });
   };
 
-  const sortedData = useMemo(() => {
-    const sortableItems = [...data];
-    if (sortConfig !== null) {
-      sortableItems.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
-          return sortConfig.direction === 'ascending' ? -1 : 1;
-        }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
-          return sortConfig.direction === 'ascending' ? 1 : -1;
-        }
-        return 0;
-      });
+  const renderSortIcon = (key: keyof DataItem) => {
+    if (sortConfig?.key === key) {
+      return sortConfig.direction === 'ascending' ? (
+        <ChevronUpIcon />
+      ) : (
+        <ChevronDownIcon />
+      );
     }
-    return sortableItems;
-  }, [data, sortConfig]);
-
-  // 페이지네이션 함수
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    return <ChevronUpIcon />;
   };
 
   return (
@@ -116,41 +134,88 @@ const DataTable: React.FC = () => {
           <TableCaption>게임 통계 테이블</TableCaption>
           <Thead>
             <Tr>
-              <Th textAlign="center">
-                <Button onClick={() => requestSort('id')}>ID</Button>
+              <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                ID
+                <IconButton
+                  icon={renderSortIcon('topicId')}
+                  onClick={() => requestSort('topicId')}
+                  aria-label="Sort ID"
+                  size="xs"
+                  ml={2}
+                />
               </Th>
-              <Th textAlign="center">
-                <Button onClick={() => requestSort('주제명')}>주제명</Button>
+              <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                주제명
+                <IconButton
+                  icon={renderSortIcon('topicText')}
+                  onClick={() => requestSort('topicText')}
+                  aria-label="Sort 주제명"
+                  size="xs"
+                  ml={2}
+                />
               </Th>
-              <Th textAlign="center">
-                <Button onClick={() => requestSort('게임실행횟수')}>
-                  게임실행횟수
-                </Button>
+              <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                게임실행횟수
+                <IconButton
+                  icon={renderSortIcon('topicUsageCount')}
+                  onClick={() => requestSort('topicUsageCount')}
+                  aria-label="Sort 게임실행횟수"
+                  size="xs"
+                  ml={2}
+                />
               </Th>
-              <Th textAlign="center">
-                <Button onClick={() => requestSort('게임완료율')}>
-                  게임완료율
-                </Button>
+              <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                문제 수
+                <IconButton
+                  icon={renderSortIcon('topicQuestionCount')}
+                  onClick={() => requestSort('topicQuestionCount')}
+                  aria-label="Sort 문제 수"
+                  size="xs"
+                  ml={2}
+                />
               </Th>
-              <Th textAlign="center">
-                <Button onClick={() => requestSort('게임당평균소요시간')}>
-                  게임당평균소요시간
-                </Button>
+              <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                평균게임완료율
+                <IconButton
+                  icon={renderSortIcon('topicAverageCompletePlayRate')}
+                  onClick={() => requestSort('topicAverageCompletePlayRate')}
+                  aria-label="Sort 평균게임완료율"
+                  size="xs"
+                  ml={2}
+                />
               </Th>
-              <Th textAlign="center">
-                <Button onClick={() => requestSort('정답률')}>정답률</Button>
+              <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                평균정답률
+                <IconButton
+                  icon={renderSortIcon('topicAverageCorrectionRate')}
+                  onClick={() => requestSort('topicAverageCorrectionRate')}
+                  aria-label="Sort 평균정답률"
+                  size="xs"
+                  ml={2}
+                />
+              </Th>
+              <Th textAlign="center" fontWeight="bold" fontSize="1rem">
+                게임완료횟수
+                <IconButton
+                  icon={renderSortIcon('topicCompleteCount')}
+                  onClick={() => requestSort('topicCompleteCount')}
+                  aria-label="Sort 게임완료횟수"
+                  size="xs"
+                  ml={2}
+                />
               </Th>
             </Tr>
           </Thead>
           <Tbody>
-            {sortedData.map(row => (
-              <Tr key={row.id}>
-                <Td textAlign="center">{row.id}</Td>
-                <Td textAlign="center">{row.주제명}</Td>
-                <Td textAlign="center">{row.게임실행횟수}</Td>
-                <Td textAlign="center">{row.게임완료율}</Td>
-                <Td textAlign="center">{row.게임당평균소요시간}</Td>
-                <Td textAlign="center">{row.정답률}</Td>
+            {data?.map(row => (
+              <Tr key={row.topicId}>
+                <Td textAlign="center">{row.topicId}</Td>
+                <Td textAlign="center">{row.topicText}</Td>
+                <Td textAlign="center">{row.topicUsageCount}</Td>
+                <Td textAlign="center">{row.topicQuestionCount}</Td>
+                <Td textAlign="center">{row.topicAverageCompletePlayRate}</Td>
+                <Td textAlign="center">{row.topicAverageCorrectionRate}</Td>
+                <Td textAlign="center">{row.topicCompleteCount}</Td>
               </Tr>
             ))}
           </Tbody>
@@ -160,7 +225,7 @@ const DataTable: React.FC = () => {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          onPageChange={handlePageChange}
+          onPageChange={setCurrentPage}
         />
       </Flex>
     </>

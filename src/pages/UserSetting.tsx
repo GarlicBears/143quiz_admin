@@ -78,9 +78,9 @@ const UserSetting: React.FC = () => {
         totalPage: number;
         totalCount: number;
         users: User[];
-      }>('/admin/user/', {
+      }>('/admin/users', {
         params: {
-          sort: `${sortKey},${sortDirection}`,
+          sort: `${sortKey}${sortDirection === 'ascending' ? 'Asc' : 'Desc'}`,
           pageNumber: currentPage - 1,
           pageSize: itemsPerPage,
         },
