@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ChartData } from 'chart.js';
-import axiosInstance from '../API/axiosInstance';
+import axiosInstance from '../api/axiosInstance';
 
 interface MonthlyVisitorsResponse {
   visitors: {

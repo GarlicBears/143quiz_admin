@@ -11,7 +11,7 @@ import {
   Flex,
   IconButton,
 } from '@chakra-ui/react';
-import axiosInstance from '../API/axiosInstance';
+import axiosInstance from '../api/axiosInstance';
 import Pagination from '../Components/common/Pagination';
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 
