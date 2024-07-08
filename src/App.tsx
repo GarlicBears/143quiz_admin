@@ -1,14 +1,14 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Layout from './Components/common/Layout';
-import Dashboard from './Pages/Dashboard';
-import Login from './Pages/Login';
-import Visitor from './Pages/Visitor';
-import GameStat from './Pages/GameStat';
-import UserSetting from './Pages/UserSetting';
-import AdminSetting from './Pages/AdminSetting';
-import TopicSetting from './Pages/TopicSetting';
-import Error from './Pages/Error';
+import Dashboard from './pages/Dashboard';
+import Login from './pages/Login';
+import Visitor from './pages/Visitor';
+import GameStat from './pages/GameStat';
+import UserSetting from './pages/UserSetting';
+import AdminSetting from './pages/AdminSetting';
+import TopicSetting from './pages/TopicSetting';
+import Error from './pages/Error';
 import PrivateRoute from './Components/PrivateRoute';
 
 function App() {

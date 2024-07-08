@@ -10,7 +10,7 @@ import {
   HStack,
   useToast,
 } from '@chakra-ui/react';
-import axiosInstance from '../API/axiosInstance';
+import axiosInstance from '../api/axiosInstance';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 

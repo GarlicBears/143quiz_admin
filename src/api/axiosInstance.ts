@@ -1,6 +1,5 @@
 import axios, {
   AxiosError,
-  AxiosRequestConfig,
   AxiosResponse,
   InternalAxiosRequestConfig,
   AxiosHeaders,
@@ -22,11 +21,13 @@ axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
     // 쿠키에서 accessToken 읽어오기
     const accessToken = Cookies.get('accessToken'); // 쿠키에서 토큰 가져오기.
-
     const isExcludedUrl = excludeUrlEndings.some(ending =>
       config.url?.endsWith(ending),
     );
-
+    if (!accessToken && !isExcludedUrl) {
+      window.location.href = '/login'; // 로그인 페이지로 리디렉션
+      throw new AxiosError('No access token', '401');
+    }
     if (accessToken && !isExcludedUrl) {
       if (!config.headers) {
         config.headers = new AxiosHeaders();
