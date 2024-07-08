@@ -11,7 +11,7 @@ import {
   Flex,
   IconButton,
 } from '@chakra-ui/react';
-import axiosInstance from '../API/axiosInstance';
+import axiosInstance from '../api/axiosInstance';
 import Pagination from '../Components/common/Pagination';
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 
@@ -49,6 +49,9 @@ const DataTable: React.FC = () => {
         case 'topicUsageCount':
           sortValue = `usageCount${dir}`;
           break;
+        case 'topicQuestionCount':
+          sortValue = `questionCount${dir}`;
+          break;
         case 'topicAverageCompletePlayRate':
           sortValue = `averageCompletePlayRate${dir}`;
           break;
@@ -77,7 +80,7 @@ const DataTable: React.FC = () => {
         topicId: topic.topicId,
         topicText: topic.title,
         topicUsageCount: topic.usageCount,
-        topicQuestionCount: topic.completeCount,
+        topicQuestionCount: topic.questionCount,
         topicAverageCompletePlayRate: parseFloat(
           topic.averageCompletePlayRate,
         ).toFixed(2),

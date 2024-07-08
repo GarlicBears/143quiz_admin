@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SimpleGrid, GridItem, Box } from '@chakra-ui/react';
 import ChartComponent from '../Components/common/Chart';
-import axiosInstance from '../API/axiosInstance';
+import axiosInstance from '../api/axiosInstance';
 
 interface VisitorData {
   date: string;
