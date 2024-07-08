@@ -30,7 +30,7 @@ interface TopicItem {
   topicStatus: string;
   topicCreationDate: string;
   topicUpdateDate: string;
-  topicUsageCount: number;
+  topicQuestionCount: number;
 }
 
 interface SortConfig {
@@ -304,8 +304,8 @@ const TopicSetting = () => {
                 <Th textAlign="center" fontWeight="bold" fontSize="1rem">
                   문제 수
                   <IconButton
-                    icon={renderSortIcon('topicUsageCount')}
-                    onClick={() => requestSort('topicUsageCount')}
+                    icon={renderSortIcon('topicQuestionCount')}
+                    onClick={() => requestSort('topicQuestionCount')}
                     aria-label="Sort 문제 수"
                     size="xs"
                     ml={2}
@@ -356,7 +356,7 @@ const TopicSetting = () => {
                   <Td textAlign="center">
                     {formatDate(topic.topicCreationDate)}
                   </Td>
-                  <Td textAlign="center">{topic.topicUsageCount}</Td>
+                  <Td textAlign="center">{topic.topicQuestionCount}</Td>
                   <Td textAlign="center">{topic.topicStatus}</Td>
                   <Td textAlign="center">
                     {formatDate(topic.topicUpdateDate)}
