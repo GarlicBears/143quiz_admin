@@ -49,6 +49,9 @@ const DataTable: React.FC = () => {
         case 'topicUsageCount':
           sortValue = `usageCount${dir}`;
           break;
+        case 'topicQuestionCount':
+          sortValue = `questionCount${dir}`;
+          break;
         case 'topicAverageCompletePlayRate':
           sortValue = `averageCompletePlayRate${dir}`;
           break;
