@@ -13,7 +13,7 @@ import PrivateRoute from './Components/PrivateRoute';
 
 function App() {
   return (
-    <Router>
+    <Router basename={process.env.REACT_APP_WS_URL}>
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route path="/" element={<PrivateRoute />}>
