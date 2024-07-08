@@ -77,7 +77,7 @@ const DataTable: React.FC = () => {
         topicId: topic.topicId,
         topicText: topic.title,
         topicUsageCount: topic.usageCount,
-        topicQuestionCount: topic.completeCount,
+        topicQuestionCount: topic.questionCount,
         topicAverageCompletePlayRate: parseFloat(
           topic.averageCompletePlayRate,
         ).toFixed(2),
