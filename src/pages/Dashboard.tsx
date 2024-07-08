@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   SimpleGrid,
   GridItem,
@@ -15,6 +15,8 @@ import useMonthlyVisitors from '../hooks/useMonthlyVisitors';
 import useGameCompletionRate from '../hooks/useGameCompletionRate';
 import useUserRanking from '../hooks/useUserRanking';
 import { ChartOptions, ChartType, ChartData } from 'chart.js';
+import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 interface StatBoxProps {
   label: string;
@@ -69,6 +71,17 @@ const Dashboard: React.FC = () => {
   const { gameCompletionData, error: gameCompletionError } =
     useGameCompletionRate();
   const { userRankingData, error: userRankingError } = useUserRanking();
+
+  const navigate = useNavigate();
+  useEffect(() => {
+    checkLogin();
+  }, []);
+  const checkLogin = async () => {
+    const accessToken = Cookies.get('accessToken');
+    if (!accessToken) {
+      navigate('/login');
+    }
+  };
 
   return (
     <>
