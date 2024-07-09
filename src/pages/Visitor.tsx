@@ -109,7 +109,6 @@ const Visitor: React.FC = () => {
         ))}
       </SimpleGrid>
     </Box>
-
   );
 };
 
