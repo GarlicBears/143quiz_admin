@@ -70,7 +70,7 @@ axiosInstance.interceptors.response.use(
         console.error('Error refreshing token:', refreshError);
         // refresh token이 만료된 경우 로그인 페이지로 이동
         Cookies.remove('accessToken');
-        // window.location.href = '/login';
+        window.location.href = '/login';
       }
     }
     return Promise.reject(error);
