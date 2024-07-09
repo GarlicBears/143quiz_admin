@@ -23,6 +23,7 @@ interface DataItem {
   topicAverageCompletePlayRate: string;
   topicAverageCorrectionRate: string;
   topicCompleteCount: number;
+
 }
 
 interface SortConfig {
@@ -232,6 +233,7 @@ const DataTable: React.FC = () => {
         />
       </Flex>
     </>
+
   );
 };
 

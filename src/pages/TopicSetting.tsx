@@ -101,7 +101,6 @@ const TopicSetting = () => {
           </FormControl>
           <Button onClick={event => handleUpload(event)}>업로드</Button>
         </HStack>
-
         <TableContainer>
           <Table
             variant="simple"
