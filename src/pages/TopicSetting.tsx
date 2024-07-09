@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React from 'react';
 import {
   Table,
   Thead,
@@ -6,7 +6,6 @@ import {
   Tr,
   Th,
   Td,
-  TableCaption,
   TableContainer,
   Button,
   Checkbox,
@@ -21,22 +20,8 @@ import {
 } from '@chakra-ui/react';
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import ConfirmModal from '../Components/common/ConfirmModal';
-import axiosInstance from '../api/axiosInstance';
 import Pagination from '../Components/common/Pagination';
-
-interface TopicItem {
-  topicId: number;
-  topicText: string;
-  topicStatus: string;
-  topicCreationDate: string;
-  topicUpdateDate: string;
-  topicQuestionCount: number;
-}
-
-interface SortConfig {
-  key: keyof TopicItem;
-  direction: 'ascending' | 'descending';
-}
+import useTopicSetting from '../hooks/useTopicSetting'; // 커스텀 훅 임포트
 
 const formatDate = (dateString: string): string => {
   const options: Intl.DateTimeFormatOptions = {
@@ -50,168 +35,33 @@ const formatDate = (dateString: string): string => {
 };
 
 const TopicSetting = () => {
-  // 상태 선언
-  const [topics, setTopics] = useState<TopicItem[]>([]);
-  const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
-  const [selectedRows, setSelectedRows] = useState<number[]>([]);
+  const {
+    topics,
+    sortConfig,
+    selectedRows,
+    image,
+    excel,
+    uploadTopicId,
+    currentPage,
+    totalPages,
+    setImage,
+    setExcel,
+    setUploadTopicId,
+    setCurrentPage,
+    handleSelectAll,
+    handleSelectRow,
+    handleDelete,
+    handleBulkDelete,
+    confirmDelete,
+    handleUpload,
+    handleImageUpload,
+    requestSort,
+    sortedData,
+  } = useTopicSetting();
+
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [deleteRowIds, setDeleteRowIds] = useState<number[]>([]);
-  const [image, setImage] = useState<File | null>(null);
-  const [excel, setExcel] = useState<File | null>(null);
 
-  // 페이지네이션 상태
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const itemsPerPage = 10;
-
-  // API 호출 함수
-  const getTopicData = useCallback(async () => {
-    try {
-      const response = await axiosInstance.get('/admin/topics');
-      const data = response.data;
-      if (Array.isArray(data.topics)) {
-        setTopics(data.topics);
-      } else {
-        console.error('Response data does not contain topics array:', data);
-      }
-    } catch (error) {
-      console.error('Error fetching topic data:', error);
-    }
-  }, []);
-
-  useEffect(() => {
-    getTopicData();
-  }, [getTopicData]);
-
-  // 정렬 요청 함수
-  const requestSort = (key: keyof TopicItem) => {
-    let direction: 'ascending' | 'descending' = 'ascending';
-    if (sortConfig?.key === key && sortConfig.direction === 'ascending') {
-      direction = 'descending';
-    }
-    setSortConfig({ key, direction });
-  };
-
-  // 정렬된 데이터
-  const sortedData = useMemo(() => {
-    const sortableItems = [...topics];
-    if (sortConfig !== null) {
-      const { key, direction } = sortConfig;
-      sortableItems.sort((a, b) => {
-        const aValue = a[key];
-        const bValue = b[key];
-        if (aValue === null) return direction === 'ascending' ? -1 : 1;
-        if (bValue === null) return direction === 'ascending' ? 1 : -1;
-        return direction === 'ascending'
-          ? aValue < bValue
-            ? -1
-            : 1
-          : aValue > bValue
-            ? -1
-            : 1;
-      });
-    }
-    return sortableItems;
-  }, [topics, sortConfig]);
-
-  // 모든 행 선택/선택 해제 함수
-  const handleSelectAll = () => {
-    setSelectedRows(
-      selectedRows.length === topics.length
-        ? []
-        : topics.map(item => item.topicId),
-    );
-  };
-
-  // 특정 행 선택/선택 해제 함수
-  const handleSelectRow = (id: number) => {
-    setSelectedRows(prev =>
-      prev.includes(id) ? prev.filter(rowId => rowId !== id) : [...prev, id],
-    );
-  };
-
-  // 특정 주제 삭제 요청 함수
-  const handleDelete = async (id: number) => {
-    try {
-      const response = await axiosInstance.delete(`/admin/topic/${id}`);
-      const data = response.data;
-      console.log('Deleted topic:');
-      console.log(data);
-    } catch (error) {
-      console.error('Error deleting topic:', error);
-    }
-
-    setDeleteRowIds([id]);
-    onOpen();
-  };
-
-  // 선택된 주제 일괄 삭제 요청 함수
-  const handleBulkDelete = () => {
-    const deletableRows = selectedRows.filter(
-      id =>
-        topics.find(topic => topic.topicId === id)?.topicStatus !==
-        '삭제된 주제',
-    );
-    setDeleteRowIds(deletableRows);
-    onOpen();
-  };
-
-  // 주제 삭제 확인 및 실제 삭제 함수
-  const confirmDelete = async () => {
-    try {
-      // 각 주제에 대해 삭제 요청을 서버로 보냄
-      for (const id of deleteRowIds) {
-        await axiosInstance.delete(`/admin/topic/${id}`);
-      }
-    } catch (error) {
-      console.error('Error deleting topics:', error);
-    }
-    setTopics(prevData =>
-      prevData.map(topic =>
-        deleteRowIds.includes(topic.topicId)
-          ? {
-              ...topic,
-              topicStatus: '삭제된 주제',
-              topicUpdateDate: new Date().toISOString(),
-            }
-          : topic,
-      ),
-    );
-    setSelectedRows([]);
-    onClose();
-  };
-
-  // 이미지 및 엑셀 파일 업로드 처리 함수
-  // TODO : 이미지 업로드 및 서버에 저장하기
-  const handleUpload = async () => {
-    if (excel) {
-      const formData = new FormData();
-      formData.append('excel', excel);
-
-      try {
-        const response = await axiosInstance.post(
-          '/admin/topic/upload-excel',
-          formData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          },
-        );
-        console.log(response.data);
-
-        // 업로드 후 데이터 다시 불러오기
-        getTopicData();
-        setImage(null);
-        setExcel(null);
-      } catch (error) {
-        console.error('Error uploading excel:', error);
-      }
-    }
-  };
-
-  // 정렬 아이콘 렌더링 함수
-  const renderSortIcon = (key: keyof TopicItem) => {
+  const renderSortIcon = (key: keyof (typeof topics)[0]) => {
     if (sortConfig?.key === key) {
       return sortConfig.direction === 'ascending' ? (
         <ChevronUpIcon />
@@ -222,12 +72,10 @@ const TopicSetting = () => {
     return <ChevronDownIcon />;
   };
 
-  // 페이지네이션 함수
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
-  // JSX 렌더링
   return (
     <>
       <VStack spacing={4} align="stretch">
@@ -252,7 +100,6 @@ const TopicSetting = () => {
               }
             />
           </FormControl>
-          {/*<Button onClick={handleUpload} isDisabled={!image || !excel}>*/}
           <Button onClick={handleUpload}>업로드</Button>
         </HStack>
         <TableContainer>
@@ -340,6 +187,7 @@ const TopicSetting = () => {
                     선택삭제
                   </Button>
                 </Th>
+                {/*<Th textAlign="center">이미지 업로드</Th>*/}
               </Tr>
             </Thead>
             <Tbody>
@@ -370,6 +218,24 @@ const TopicSetting = () => {
                       삭제
                     </Button>
                   </Td>
+                  {/*<Td textAlign="center">*/}
+                  {/*  <Button*/}
+                  {/*    colorScheme="blue"*/}
+                  {/*    onClick={() => {*/}
+                  {/*      setUploadTopicId(topic.topicId);*/}
+                  {/*      handleImageUpload(topic.topicId);*/}
+                  {/*    }}*/}
+                  {/*    isDisabled={!image || uploadTopicId !== topic.topicId}*/}
+                  {/*  >*/}
+                  {/*    {topic.imageUrl && (*/}
+                  {/*      <img*/}
+                  {/*        src={topic.imageUrl}*/}
+                  {/*        alt={`Topic ${topic.topicId} 이미지`}*/}
+                  {/*        style={{ width: '50px', height: '50px' }}*/}
+                  {/*      />*/}
+                  {/*    )}*/}
+                  {/*  </Button>*/}
+                  {/*</Td>*/}
                 </Tr>
               ))}
             </Tbody>
