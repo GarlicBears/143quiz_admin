@@ -139,60 +139,41 @@ const useTopicSetting = () => {
     setSelectedRows([]);
   };
 
-  const handleUpload = async () => {
-    if (excel) {
+  const handleUpload = async (
+    event: React.MouseEvent<HTMLButtonElement>,
+    topicId?: number,
+  ) => {
+    event.preventDefault();
+
+    if (excel && image) {
       const formData = new FormData();
       formData.append('excel', excel);
-
-      try {
-        const response = await axiosInstance.post(
-          '/admin/topic/upload-excel',
-          formData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          },
-        );
-        console.log(response.data);
-
-        getTopicData();
-        setImage(null);
-        setExcel(null);
-      } catch (error) {
-        console.error('Error uploading excel:', error);
-      }
-    }
-  };
-
-  const handleImageUpload = async (topicId: number) => {
-    if (image) {
-      const formData = new FormData();
+      //const image = new FormData();
       formData.append('image', image);
 
       try {
-        const response = await axiosInstance.post(
-          `/admin/topic/${topicId}/image`,
-          formData,
+        const excelResponse = await axiosInstance.post(
+          '/admin/topic/upload-excel',
+          formData, // 하나의 formData에 붙임.
           {
             headers: {
               'Content-Type': 'multipart/form-data',
             },
           },
         );
-        console.log(response.data);
-        const imageUrl = response.data.imageUrl;
-
+        console.log(excelResponse.data);
+        getTopicData();
+        setExcel(null);
+        const imageUrl = excelResponse.data.imageUrl;
         setTopics(prevData =>
           prevData.map(topic =>
             topic.topicId === topicId ? { ...topic, imageUrl } : topic,
           ),
         );
-
         setImage(null);
         setUploadTopicId(null);
       } catch (error) {
-        console.error('Error uploading image:', error);
+        console.error('Error uploading excel:', error);
       }
     }
   };
@@ -217,7 +198,6 @@ const useTopicSetting = () => {
     handleBulkDelete,
     confirmDelete,
     handleUpload,
-    handleImageUpload,
     requestSort,
     sortedData,
     setDeleteRowIds,

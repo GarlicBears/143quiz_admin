@@ -39,14 +39,14 @@ const TopicSetting = () => {
     topics,
     sortConfig,
     selectedRows,
-    image,
-    excel,
-    uploadTopicId,
+    // image,
+    // excel,
+    // uploadTopicId,
     currentPage,
     totalPages,
     setImage,
     setExcel,
-    setUploadTopicId,
+    // setUploadTopicId,
     setCurrentPage,
     handleSelectAll,
     handleSelectRow,
@@ -54,12 +54,11 @@ const TopicSetting = () => {
     handleBulkDelete,
     confirmDelete,
     handleUpload,
-    handleImageUpload,
     requestSort,
     sortedData,
   } = useTopicSetting();
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen, onClose } = useDisclosure();
 
   const renderSortIcon = (key: keyof (typeof topics)[0]) => {
     if (sortConfig?.key === key) {
@@ -100,8 +99,9 @@ const TopicSetting = () => {
               }
             />
           </FormControl>
-          <Button onClick={handleUpload}>업로드</Button>
+          <Button onClick={event => handleUpload(event)}>업로드</Button>
         </HStack>
+
         <TableContainer>
           <Table
             variant="simple"
@@ -213,7 +213,7 @@ const TopicSetting = () => {
                     <Button
                       colorScheme="red"
                       onClick={() => handleDelete(topic.topicId)}
-                      isDisabled={topic.topicStatus === '삭제된 주제'}
+                      isDisabled={topic.topicStatus === 'inactive'}
                     >
                       삭제
                     </Button>
