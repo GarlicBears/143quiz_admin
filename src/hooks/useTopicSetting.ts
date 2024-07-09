@@ -146,15 +146,15 @@ const useTopicSetting = () => {
     event.preventDefault();
 
     if (excel && image) {
-      const excelFormData = new FormData();
-      excelFormData.append('excel', excel);
-      const imageFormData = new FormData();
-      imageFormData.append('image', image);
+      const formData = new FormData();
+      formData.append('excel', excel);
+      //const image = new FormData();
+      formData.append('image', image);
 
       try {
         const excelResponse = await axiosInstance.post(
           '/admin/topic/upload-excel',
-          { excelFormData, imageFormData },
+          formData, // 하나의 formData에 붙임.
           {
             headers: {
               'Content-Type': 'multipart/form-data',
