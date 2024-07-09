@@ -213,7 +213,7 @@ const TopicSetting = () => {
                     <Button
                       colorScheme="red"
                       onClick={() => handleDelete(topic.topicId)}
-                      isDisabled={topic.topicStatus === '삭제된 주제'}
+                      isDisabled={topic.topicStatus === 'inactive'}
                     >
                       삭제
                     </Button>
