@@ -139,40 +139,24 @@ const useTopicSetting = () => {
     setSelectedRows([]);
   };
 
-  const handleUpload = async () => {
+  const handleUpload = async (
+    event: React.MouseEvent<HTMLButtonElement>,
+    topicId?: number,
+  ) => {
+    event.preventDefault();
+
+    const formData = new FormData();
     if (excel) {
-      const formData = new FormData();
       formData.append('excel', excel);
-
-      try {
-        const response = await axiosInstance.post(
-          '/admin/topic/upload-excel',
-          formData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          },
-        );
-        console.log(response.data);
-
-        getTopicData();
-        setImage(null);
-        setExcel(null);
-      } catch (error) {
-        console.error('Error uploading excel:', error);
-      }
     }
-  };
-
-  const handleImageUpload = async (topicId: number) => {
     if (image) {
-      const formData = new FormData();
       formData.append('image', image);
+    }
 
+    if (excel || image) {
       try {
         const response = await axiosInstance.post(
-          `/admin/topic/${topicId}/image`,
+          excel ? '/admin/topic/upload-excel' : `/admin/topic/${topicId}/image`,
           formData,
           {
             headers: {
@@ -181,18 +165,24 @@ const useTopicSetting = () => {
           },
         );
         console.log(response.data);
-        const imageUrl = response.data.imageUrl;
 
-        setTopics(prevData =>
-          prevData.map(topic =>
-            topic.topicId === topicId ? { ...topic, imageUrl } : topic,
-          ),
-        );
+        if (excel) {
+          getTopicData();
+          setExcel(null);
+        }
 
-        setImage(null);
-        setUploadTopicId(null);
+        if (image && topicId !== undefined) {
+          const imageUrl = response.data.imageUrl;
+          setTopics(prevData =>
+            prevData.map(topic =>
+              topic.topicId === topicId ? { ...topic, imageUrl } : topic,
+            ),
+          );
+          setImage(null);
+          setUploadTopicId(null);
+        }
       } catch (error) {
-        console.error('Error uploading image:', error);
+        console.error('Error uploading file:', error);
       }
     }
   };
@@ -217,7 +207,6 @@ const useTopicSetting = () => {
     handleBulkDelete,
     confirmDelete,
     handleUpload,
-    handleImageUpload,
     requestSort,
     sortedData,
     setDeleteRowIds,

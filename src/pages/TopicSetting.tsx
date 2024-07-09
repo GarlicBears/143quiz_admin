@@ -54,7 +54,6 @@ const TopicSetting = () => {
     handleBulkDelete,
     confirmDelete,
     handleUpload,
-    handleImageUpload,
     requestSort,
     sortedData,
   } = useTopicSetting();
@@ -100,8 +99,9 @@ const TopicSetting = () => {
               }
             />
           </FormControl>
-          <Button onClick={handleUpload}>업로드</Button>
+          <Button onClick={event => handleUpload(event)}>업로드</Button>
         </HStack>
+
         <TableContainer>
           <Table
             variant="simple"
