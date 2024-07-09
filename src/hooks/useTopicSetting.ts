@@ -145,14 +145,16 @@ const useTopicSetting = () => {
   ) => {
     event.preventDefault();
 
-    if (excel) {
+    if (excel && image) {
       const excelFormData = new FormData();
       excelFormData.append('excel', excel);
+      const imageFormData = new FormData();
+      imageFormData.append('image', image);
 
       try {
         const excelResponse = await axiosInstance.post(
           '/admin/topic/upload-excel',
-          excelFormData,
+          { excelFormData, imageFormData },
           {
             headers: {
               'Content-Type': 'multipart/form-data',
@@ -162,27 +164,7 @@ const useTopicSetting = () => {
         console.log(excelResponse.data);
         getTopicData();
         setExcel(null);
-      } catch (error) {
-        console.error('Error uploading excel:', error);
-      }
-    }
-
-    if (image && topicId !== undefined) {
-      const imageFormData = new FormData();
-      imageFormData.append('image', image);
-
-      try {
-        const imageResponse = await axiosInstance.post(
-          `/admin/topic/${topicId}/image`,
-          imageFormData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          },
-        );
-        console.log(imageResponse.data);
-        const imageUrl = imageResponse.data.imageUrl;
+        const imageUrl = excelResponse.data.imageUrl;
         setTopics(prevData =>
           prevData.map(topic =>
             topic.topicId === topicId ? { ...topic, imageUrl } : topic,
@@ -191,7 +173,7 @@ const useTopicSetting = () => {
         setImage(null);
         setUploadTopicId(null);
       } catch (error) {
-        console.error('Error uploading image:', error);
+        console.error('Error uploading excel:', error);
       }
     }
   };
