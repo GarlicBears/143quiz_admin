@@ -39,14 +39,14 @@ const TopicSetting = () => {
     topics,
     sortConfig,
     selectedRows,
-    image,
-    excel,
-    uploadTopicId,
+    // image,
+    // excel,
+    // uploadTopicId,
     currentPage,
     totalPages,
     setImage,
     setExcel,
-    setUploadTopicId,
+    // setUploadTopicId,
     setCurrentPage,
     handleSelectAll,
     handleSelectRow,
@@ -58,7 +58,7 @@ const TopicSetting = () => {
     sortedData,
   } = useTopicSetting();
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen, onClose } = useDisclosure();
 
   const renderSortIcon = (key: keyof (typeof topics)[0]) => {
     if (sortConfig?.key === key) {

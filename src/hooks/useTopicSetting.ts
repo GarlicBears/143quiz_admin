@@ -145,44 +145,53 @@ const useTopicSetting = () => {
   ) => {
     event.preventDefault();
 
-    const formData = new FormData();
     if (excel) {
-      formData.append('excel', excel);
-    }
-    if (image) {
-      formData.append('image', image);
-    }
+      const excelFormData = new FormData();
+      excelFormData.append('excel', excel);
 
-    if (excel || image) {
       try {
-        const response = await axiosInstance.post(
-          excel ? '/admin/topic/upload-excel' : `/admin/topic/${topicId}/image`,
-          formData,
+        const excelResponse = await axiosInstance.post(
+          '/admin/topic/upload-excel',
+          excelFormData,
           {
             headers: {
               'Content-Type': 'multipart/form-data',
             },
           },
         );
-        console.log(response.data);
-
-        if (excel) {
-          getTopicData();
-          setExcel(null);
-        }
-
-        if (image && topicId !== undefined) {
-          const imageUrl = response.data.imageUrl;
-          setTopics(prevData =>
-            prevData.map(topic =>
-              topic.topicId === topicId ? { ...topic, imageUrl } : topic,
-            ),
-          );
-          setImage(null);
-          setUploadTopicId(null);
-        }
+        console.log(excelResponse.data);
+        getTopicData();
+        setExcel(null);
       } catch (error) {
-        console.error('Error uploading file:', error);
+        console.error('Error uploading excel:', error);
+      }
+    }
+
+    if (image && topicId !== undefined) {
+      const imageFormData = new FormData();
+      imageFormData.append('image', image);
+
+      try {
+        const imageResponse = await axiosInstance.post(
+          `/admin/topic/${topicId}/image`,
+          imageFormData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          },
+        );
+        console.log(imageResponse.data);
+        const imageUrl = imageResponse.data.imageUrl;
+        setTopics(prevData =>
+          prevData.map(topic =>
+            topic.topicId === topicId ? { ...topic, imageUrl } : topic,
+          ),
+        );
+        setImage(null);
+        setUploadTopicId(null);
+      } catch (error) {
+        console.error('Error uploading image:', error);
       }
     }
   };
