@@ -44,7 +44,7 @@ const useGameCompletionRate = () => {
           labels,
           datasets: [
             {
-              label: '게임 완료율',
+              label: '총 플레이 시간',
               data,
               backgroundColor: [
                 'rgb(255, 99, 132)',
