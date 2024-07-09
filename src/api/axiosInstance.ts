@@ -8,7 +8,7 @@ import Cookies from 'js-cookie';
 
 // axios 인스턴스 생성
 const axiosInstance = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'https://garlicbears.com/api',
+  baseURL: process.env.REACT_APP_API_URL,
   timeout: 5000,
   withCredentials: true,
 });
