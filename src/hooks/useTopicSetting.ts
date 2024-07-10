@@ -33,9 +33,9 @@ const useTopicSetting = () => {
     try {
       const response = await axiosInstance.get('/admin/topics');
       const data = response.data;
-      console.log('Fetched topic data:', data);
       if (Array.isArray(data.topics)) {
         setTopics(data.topics);
+        setTotalPages(data.totalPage);
       } else {
         console.error('Response data does not contain topics array:', data);
       }
@@ -79,8 +79,12 @@ const useTopicSetting = () => {
             : 1;
       });
     }
-    return sortableItems;
-  }, [topics, sortConfig]);
+
+    // 페이지네이션 적용
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return sortableItems.slice(startIndex, endIndex);
+  }, [topics, sortConfig, currentPage]);
 
   const handleSelectAll = () => {
     setSelectedRows(
