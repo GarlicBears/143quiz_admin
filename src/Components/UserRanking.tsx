@@ -21,7 +21,7 @@ interface UserRankingProps {
 
 const UserRanking: React.FC<UserRankingProps> = ({ data }) => {
   return (
-    <TableContainer>
+    <TableContainer overflowY="auto">
       <Table variant="simple">
         <Thead>
           <Tr>

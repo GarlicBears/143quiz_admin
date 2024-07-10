@@ -1,16 +1,19 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta
-      http-equiv="refresh"
-      content="0; URL='https://GarlicBears.github.io/143quiz_admin/'"
-    />
-    <title>143 Admin</title>
+    <meta charset="UTF-8" />
+    <title>Page Not Found</title>
+    <meta http-equiv="refresh" content="0; URL=./index.html" />
+    <script type="text/javascript">
+      // Ensure the client-side router handles the request
+      if (location.pathname.indexOf('index.html') === -1) {
+        location.replace(
+          '/index.html' + location.pathname + location.search + location.hash,
+        );
+      }
+    </script>
   </head>
   <body>
-    <p>
-      If you are not redirected,
-      <a href="https://GarlicBears.github.io/143quiz_admin/">click here</a>.
-    </p>
+    Redirecting...
   </body>
 </html>
