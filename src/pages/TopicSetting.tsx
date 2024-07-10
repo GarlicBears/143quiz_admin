@@ -21,7 +21,7 @@ import {
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import ConfirmModal from '../Components/common/ConfirmModal';
 import Pagination from '../Components/common/Pagination';
-import useTopicSetting from '../hooks/useTopicSetting'; // 커스텀 훅 임포트
+import useTopicSetting from '../hooks/useTopicSetting';
 
 const formatDate = (dateString: string): string => {
   const options: Intl.DateTimeFormatOptions = {
@@ -39,14 +39,10 @@ const TopicSetting = () => {
     topics,
     sortConfig,
     selectedRows,
-    // image,
-    // excel,
-    // uploadTopicId,
     currentPage,
     totalPages,
     setImage,
     setExcel,
-    // setUploadTopicId,
     setCurrentPage,
     handleSelectAll,
     handleSelectRow,
@@ -186,7 +182,6 @@ const TopicSetting = () => {
                     선택삭제
                   </Button>
                 </Th>
-                {/*<Th textAlign="center">이미지 업로드</Th>*/}
               </Tr>
             </Thead>
             <Tbody>
@@ -217,24 +212,6 @@ const TopicSetting = () => {
                       삭제
                     </Button>
                   </Td>
-                  {/*<Td textAlign="center">*/}
-                  {/*  <Button*/}
-                  {/*    colorScheme="blue"*/}
-                  {/*    onClick={() => {*/}
-                  {/*      setUploadTopicId(topic.topicId);*/}
-                  {/*      handleImageUpload(topic.topicId);*/}
-                  {/*    }}*/}
-                  {/*    isDisabled={!image || uploadTopicId !== topic.topicId}*/}
-                  {/*  >*/}
-                  {/*    {topic.imageUrl && (*/}
-                  {/*      <img*/}
-                  {/*        src={topic.imageUrl}*/}
-                  {/*        alt={`Topic ${topic.topicId} 이미지`}*/}
-                  {/*        style={{ width: '50px', height: '50px' }}*/}
-                  {/*      />*/}
-                  {/*    )}*/}
-                  {/*  </Button>*/}
-                  {/*</Td>*/}
                 </Tr>
               ))}
             </Tbody>
