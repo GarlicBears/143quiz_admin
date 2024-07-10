@@ -149,6 +149,7 @@ const Dashboard: React.FC = () => {
             bgColor={'#f7f7f7'}
             display="flex"
             justifyContent="center"
+            h="240px"
           >
             <UserRanking data={userRankingData} />
           </Box>
