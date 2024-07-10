@@ -51,21 +51,22 @@ const SideMenu: React.FC = () => {
   const closeLogoutModal = () => setLogoutModalOpen(false);
 
   return (
-    <Box w="250px" bg="gray.100" p="4">
+    <Box minWidth="250px" bg="gray.100" p="4">
       <Flex direction="column" align="center" mb="4">
-        <Box
-          boxSize="80px"
-          bg="white"
-          borderRadius="full"
-          p={4}
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          margin="16px"
-        >
-          <Image src={toolsImage} alt="logo" margin="4" />
-        </Box>
-        <Text>관리자ID, 직급</Text>
+        <Link to="/">
+          <Box
+            boxSize="80px"
+            bg="white"
+            borderRadius="full"
+            p={4}
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            margin="16px"
+          >
+            <Image src={toolsImage} alt="logo" margin="4" />
+          </Box>
+        </Link>
       </Flex>
       <NavItem label="대시보드" to="/" icon={gridImage} />
       <NavItem label="방문자 수" to="/visitors" icon={visitImage} />
