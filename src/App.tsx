@@ -12,6 +12,14 @@ import Error from './pages/Error';
 import PrivateRoute from './Components/PrivateRoute';
 
 function App() {
+  // 배포 시 콘솔로그 막기
+  if (process.env.NODE_ENV === 'production') {
+    ['log', 'warn', 'error'].forEach(method => {
+      (console as any)[method] = () => {
+        /* no-op */
+      };
+    });
+  }
   return (
     <Router basename={process.env.PUBLIC_URL}>
       <Routes>
