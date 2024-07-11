@@ -57,7 +57,6 @@ interface DataItem {
   age: number;
   gender: string;
   location: string;
-  active: string;
 }
 
 interface SortConfig {
@@ -111,7 +110,6 @@ const UserSetting: React.FC = () => {
         age: user.age,
         gender: genderMap[user.gender],
         location: locationMap[user.location],
-        active: user.active,
       }));
 
       setData(users);
@@ -166,10 +164,7 @@ const UserSetting: React.FC = () => {
   };
 
   const handleBulkDelete = () => {
-    const deletableRows = selectedRows.filter(
-      id => data.find(row => row.id === id)?.active !== 'inactive',
-    );
-    setDeleteRowIds(deletableRows);
+    setDeleteRowIds(selectedRows);
     onOpen();
   };
 
@@ -324,7 +319,6 @@ const UserSetting: React.FC = () => {
                     <Button
                       colorScheme="red"
                       onClick={() => handleDelete(row.id)}
-                      isDisabled={row.active === 'inactive'}
                     >
                       삭제
                     </Button>

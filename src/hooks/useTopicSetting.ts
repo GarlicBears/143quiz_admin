@@ -4,7 +4,6 @@ import axiosInstance from '../api/axiosInstance';
 interface TopicItem {
   topicId: number;
   topicText: string;
-  topicStatus: string;
   topicCreationDate: string;
   topicUpdateDate: string;
   topicQuestionCount: number;
@@ -125,12 +124,7 @@ const useTopicSetting = () => {
   };
 
   const handleBulkDelete = () => {
-    const deletableRows = selectedRows.filter(
-      id =>
-        topics.find(topic => topic.topicId === id)?.topicStatus !==
-        '삭제된 주제',
-    );
-    setDeleteRowIds(deletableRows);
+    setDeleteRowIds(selectedRows);
   };
 
   const confirmDelete = async () => {
