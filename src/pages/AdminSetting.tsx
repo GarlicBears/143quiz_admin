@@ -157,9 +157,6 @@ const AdminSetting = () => {
       .catch(err => {
         console.error(err);
       });
-    // setData(prevData =>
-    //   prevData.filter(row => !deleteRowIds.includes(row.adminId)),
-    // );
     setSelectedRows([]);
     onClose();
   };
@@ -243,26 +240,6 @@ const AdminSetting = () => {
                     ml={2}
                   />
                 </Th>
-                <Th textAlign="center" fontWeight="bold" fontSize="1rem">
-                  관리자상태
-                  <IconButton
-                    icon={renderSortIcon('adminActive')}
-                    onClick={() => requestSort('adminActive')}
-                    aria-label="Sort 관리자상태"
-                    size="xs"
-                    ml={2}
-                  />
-                </Th>
-                {/*<Th textAlign="center" fontWeight="bold" fontSize="1rem">*/}
-                {/*  권한*/}
-                {/*  <IconButton*/}
-                {/*    icon={renderSortIcon('권한')}*/}
-                {/*    onClick={() => requestSort('권한')}*/}
-                {/*    aria-label="Sort 권한"*/}
-                {/*    size="xs"*/}
-                {/*    ml={2}*/}
-                {/*  />*/}
-                {/*</Th>*/}
                 <Th textAlign="center">
                   <Button
                     colorScheme="red"
@@ -284,33 +261,13 @@ const AdminSetting = () => {
                     />
                   </Td>
                   <Td textAlign="center">{row.adminId}</Td>
-                  {/*<Td textAlign="center">{row.관리자명}</Td>*/}
                   <Td textAlign="center">{row.adminEmail}</Td>
                   <Td textAlign="center">{row.createdAt}</Td>
                   <Td textAlign="center">{row.updatedAt}</Td>
-                  <Td textAlign="center">{row.adminActive}</Td>
-                  {/*<Td textAlign="center">{row.권한}</Td>*/}
-                  {/*<Td textAlign="center">*/}
-                  {/*<Button*/}
-                  {/*  colorScheme="blue"*/}
-                  {/*  onClick={() =>*/}
-                  {/*    changePermission(*/}
-                  {/*      row.adminId,*/}
-                  {/*      row.권한 === '열람' ? '편집' : '열람',*/}
-                  {/*    )*/}
-                  {/*  }*/}
-                  {/*  isDisabled={!currentUserCanChangePermissions}*/}
-                  {/*>*/}
-                  {/*  권한변경*/}
-                  {/*</Button>*/}
-                  {/*</Td>*/}
                   <Td textAlign="center">
                     <Button
                       colorScheme="red"
                       onClick={() => handleDelete(row.adminId)}
-                      // isDisabled={
-                      //   row.adminActive === 'active' || row.권한 === '관리자'
-                      // }
                     >
                       삭제
                     </Button>
