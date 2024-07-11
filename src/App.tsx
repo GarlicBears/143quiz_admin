@@ -12,6 +12,14 @@ import Error from './pages/Error';
 import PrivateRoute from './Components/PrivateRoute';
 
 function App() {
+  // 배포 시 콘솔로그 막기
+  if (process.env.NODE_ENV === 'production') {
+    // production에서만 사용할 수 없도록
+    console = window.console || {};
+    console.log = function no_console() {};
+    console.warn = function no_console() {};
+    console.error = function () {};
+  }
   return (
     <Router basename={process.env.PUBLIC_URL}>
       <Routes>
