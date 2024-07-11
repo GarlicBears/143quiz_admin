@@ -3,8 +3,25 @@ import axios, {
   AxiosResponse,
   InternalAxiosRequestConfig,
   AxiosHeaders,
+  AxiosRequestHeaders,
 } from 'axios';
 import Cookies from 'js-cookie';
+
+interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
+
+let isRefreshing = false;
+let refreshSubscribers: ((token: string) => void)[] = [];
+
+function onRefreshed(token: string) {
+  refreshSubscribers.map(cb => cb(token));
+  refreshSubscribers = [];
+}
+
+function addRefreshSubscriber(cb: (token: string) => void) {
+  refreshSubscribers.push(cb);
+}
 
 // axios 인스턴스 생성
 const axiosInstance = axios.create({
@@ -24,10 +41,7 @@ axiosInstance.interceptors.request.use(
     const isExcludedUrl = excludeUrlEndings.some(ending =>
       config.url?.endsWith(ending),
     );
-    if (!accessToken && !isExcludedUrl) {
-      window.location.href = '/login'; // 로그인 페이지로 리디렉션
-      throw new AxiosError('No access token', '401');
-    }
+
     if (accessToken && !isExcludedUrl) {
       if (!config.headers) {
         config.headers = new AxiosHeaders();
@@ -46,32 +60,52 @@ axiosInstance.interceptors.response.use(
   (response: AxiosResponse): AxiosResponse => {
     return response;
   },
-  async (error: AxiosError): Promise<AxiosError> => {
-    // 에러코드 401이 발생하면 refresh token을 사용하여 accessToken을 갱신
-    if (error.response?.status === 401) {
-      try {
-        // refresh token을 사용하여 accessToken 갱신
-        const response = await axiosInstance.get('/admin/reissue');
-        const accessToken = response.headers['authorization'];
-        if (accessToken) {
-          Cookies.set('accessToken', accessToken, {
-            expires: 1,
-            secure: true,
-            sameSite: 'Strict',
-          });
+  async (error: AxiosError): Promise<any> => {
+    const originalRequest = error.config as CustomAxiosRequestConfig;
 
-          // 원래의 요청을 다시 시도
-          if (error.config) {
-            error.config.headers.set('Authorization', `Bearer ${accessToken}`);
-            return axiosInstance.request(error.config);
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      if (!isRefreshing) {
+        originalRequest._retry = true;
+        isRefreshing = true;
+
+        try {
+          const response = await axiosInstance.get('/admin/reissue');
+          const newAccessToken = response.headers['authorization'];
+
+          if (newAccessToken) {
+            Cookies.set('accessToken', newAccessToken, {
+              expires: 1,
+              secure: true,
+              sameSite: 'Strict',
+            });
+
+            isRefreshing = false;
+            onRefreshed(newAccessToken);
+
+            (originalRequest.headers as AxiosRequestHeaders).Authorization =
+              `Bearer ${newAccessToken}`;
+            return axiosInstance(originalRequest);
           }
+        } catch (refreshError) {
+          isRefreshing = false;
+          refreshSubscribers = [];
+          Cookies.remove('accessToken');
+          window.location.href = `${process.env.PUBLIC_URL}/login`;
+          return Promise.reject(refreshError);
         }
-      } catch (refreshError) {
-        console.error('Error refreshing token:', refreshError);
-        // refresh token이 만료된 경우 로그인 페이지로 이동
-        Cookies.remove('accessToken');
-        window.location.href = '/login';
       }
+
+      const retryOriginalRequest = new Promise(resolve => {
+        addRefreshSubscriber((token: string) => {
+          (originalRequest.headers as AxiosRequestHeaders).Authorization =
+            `Bearer ${token}`;
+          resolve(axiosInstance(originalRequest));
+        });
+      });
+
+      return retryOriginalRequest;
+    } else if (error.response?.status === 403) {
+      window.location.href = `${process.env.PUBLIC_URL}/login`;
     }
     return Promise.reject(error);
   },
