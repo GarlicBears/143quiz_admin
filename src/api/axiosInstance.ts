@@ -25,7 +25,7 @@ function addRefreshSubscriber(cb: (token: string) => void) {
 
 // axios 인스턴스 생성
 const axiosInstance = axios.create({
-  baseURL: 'https://garlicbears.com/api',
+  baseURL: process.env.REACT_APP_API_URL,
   timeout: 5000,
   withCredentials: true,
 });
