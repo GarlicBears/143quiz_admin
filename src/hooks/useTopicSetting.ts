@@ -30,8 +30,23 @@ const useTopicSetting = () => {
   const itemsPerPage = 10;
 
   const getTopicData = useCallback(async () => {
+    const sortKey = sortConfig?.key ?? 'topicId';
+    const sortDirection = sortConfig?.direction ?? 'ascending';
+
+    console.log('Fetching topics with params:', {
+      sort: `${sortKey}${sortDirection === 'ascending' ? 'Asc' : 'Desc'}`,
+      pageNumber: currentPage - 1,
+      pageSize: itemsPerPage,
+    });
+
     try {
-      const response = await axiosInstance.get('/admin/topics');
+      const response = await axiosInstance.get('/admin/topics', {
+        params: {
+          sort: `${sortKey}${sortDirection === 'ascending' ? 'Asc' : 'Desc'}`,
+          pageNumber: currentPage - 1,
+          pageSize: itemsPerPage,
+        },
+      });
       const data = response.data;
       if (Array.isArray(data.topics)) {
         setTopics(data.topics);
@@ -42,7 +57,7 @@ const useTopicSetting = () => {
     } catch (error) {
       console.error('Error fetching topic data:', error);
     }
-  }, []);
+  }, [currentPage, sortConfig]);
 
   useEffect(() => {
     getTopicData();
@@ -80,6 +95,9 @@ const useTopicSetting = () => {
       });
     }
 
+    return sortableItems;
+  }, [topics, sortConfig]);
+  
     // 페이지네이션 적용
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
@@ -152,13 +170,12 @@ const useTopicSetting = () => {
     if (excel && image) {
       const formData = new FormData();
       formData.append('excel', excel);
-      //const image = new FormData();
       formData.append('image', image);
 
       try {
         const excelResponse = await axiosInstance.post(
           '/admin/topic/upload-excel',
-          formData, // 하나의 formData에 붙임.
+          formData,
           {
             headers: {
               'Content-Type': 'multipart/form-data',
