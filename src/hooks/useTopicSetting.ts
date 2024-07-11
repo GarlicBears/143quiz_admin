@@ -97,12 +97,6 @@ const useTopicSetting = () => {
 
     return sortableItems;
   }, [topics, sortConfig]);
-  
-    // 페이지네이션 적용
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return sortableItems.slice(startIndex, endIndex);
-  }, [topics, sortConfig, currentPage]);
 
   const handleSelectAll = () => {
     setSelectedRows(
