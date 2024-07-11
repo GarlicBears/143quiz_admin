@@ -276,16 +276,6 @@ const UserSetting: React.FC = () => {
                     ml={2}
                   />
                 </Th>
-                <Th textAlign="center" fontWeight="bold" fontSize="1rem">
-                  상태
-                  <IconButton
-                    icon={renderSortIcon('active')}
-                    onClick={() => requestSort('active')}
-                    aria-label="Sort 상태"
-                    size="xs"
-                    ml={2}
-                  />
-                </Th>
                 <Th textAlign="center">
                   <Button
                     colorScheme="red"
@@ -313,7 +303,6 @@ const UserSetting: React.FC = () => {
                   <Td textAlign="center">{row.age}</Td>
                   <Td textAlign="center">{row.gender}</Td>
                   <Td textAlign="center">{row.location}</Td>
-                  <Td textAlign="center">{row.active}</Td>
                   <Td textAlign="center">
                     <Button
                       colorScheme="red"
