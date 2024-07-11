@@ -21,6 +21,23 @@ import ConfirmModal from '../Components/common/ConfirmModal';
 import axiosInstance from '../api/axiosInstance';
 import Pagination from '../Components/common/Pagination';
 
+const genderMap: { [key: string]: string } = {
+  male: '남자',
+  female: '여자',
+  other: '기타',
+};
+
+const locationMap: { [key: string]: string } = {
+  Seoul: '서울',
+  Gyeonggi: '경기',
+  Gangwon: '강원',
+  Jeolla: '전라',
+  Chungcheong: '충청',
+  Gyeongsang: '경상',
+  Jeju: '제주',
+  Overseas: '해외',
+};
+
 interface User {
   userId: number;
   email: string;
@@ -92,8 +109,8 @@ const UserSetting: React.FC = () => {
         email: user.email,
         birthYear: user.birthYear,
         age: user.age,
-        gender: user.gender,
-        location: user.location,
+        gender: genderMap[user.gender],
+        location: locationMap[user.location],
         active: user.active,
       }));
 
