@@ -15,19 +15,16 @@ const LogoutModal: React.FC<LogoutModalProps> = ({ isOpen, onClose }) => {
 
   const handleLogout = async () => {
     try {
-      axiosInstance.delete('/admin/logout');
-      console.log('로그아웃 되었습니다.');
+      await axiosInstance.delete('/admin/logout').then(() => {
+        console.log('로그아웃 되었습니다.');
 
-      // 쿠키 전부 삭제하기
-      Cookies.remove('accessToken');
-      const cookieOptions = {
-        domain: 'localhost8080:/', // 쿠키를 설정할 때 사용한 도메인으로 변경
-        path: '/login', // 쿠키를 설정할 때 사용한 경로로 변경
-      };
-      Cookies.remove('refreshToken', cookieOptions);
+        // 쿠키 전부 삭제하기
+        Cookies.remove('accessToken');
+        Cookies.remove('refreshToken');
 
-      onClose();
-      navigate('/login');
+        onClose();
+        navigate('/login');
+      });
     } catch (error) {
       console.error('로그아웃 에러', error);
     }

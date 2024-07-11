@@ -21,7 +21,14 @@ const Pagination: React.FC<Props> = ({
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
   return (
-    <Flex as="nav" justify="center" mt={4} align="center">
+    <Flex
+      as="nav"
+      justify="center"
+      mt={4}
+      align="center"
+      position="fixed"
+      bottom="40px"
+    >
       <IconButton
         icon={<ArrowLeftIcon />}
         onClick={() => onPageChange(1)}

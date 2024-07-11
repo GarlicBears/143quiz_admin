@@ -21,6 +21,23 @@ import ConfirmModal from '../Components/common/ConfirmModal';
 import axiosInstance from '../api/axiosInstance';
 import Pagination from '../Components/common/Pagination';
 
+const genderMap: { [key: string]: string } = {
+  male: '남자',
+  female: '여자',
+  other: '기타',
+};
+
+const locationMap: { [key: string]: string } = {
+  Seoul: '서울',
+  Gyeonggi: '경기',
+  Gangwon: '강원',
+  Jeolla: '전라',
+  Chungcheong: '충청',
+  Gyeongsang: '경상',
+  Jeju: '제주',
+  Overseas: '해외',
+};
+
 interface User {
   userId: number;
   email: string;
@@ -40,7 +57,6 @@ interface DataItem {
   age: number;
   gender: string;
   location: string;
-  active: string;
 }
 
 interface SortConfig {
@@ -92,9 +108,8 @@ const UserSetting: React.FC = () => {
         email: user.email,
         birthYear: user.birthYear,
         age: user.age,
-        gender: user.gender,
-        location: user.location,
-        active: user.active,
+        gender: genderMap[user.gender],
+        location: locationMap[user.location],
       }));
 
       setData(users);
@@ -149,10 +164,7 @@ const UserSetting: React.FC = () => {
   };
 
   const handleBulkDelete = () => {
-    const deletableRows = selectedRows.filter(
-      id => data.find(row => row.id === id)?.active !== 'inactive',
-    );
-    setDeleteRowIds(deletableRows);
+    setDeleteRowIds(selectedRows);
     onOpen();
   };
 
@@ -276,16 +288,6 @@ const UserSetting: React.FC = () => {
                     ml={2}
                   />
                 </Th>
-                <Th textAlign="center" fontWeight="bold" fontSize="1rem">
-                  상태
-                  <IconButton
-                    icon={renderSortIcon('active')}
-                    onClick={() => requestSort('active')}
-                    aria-label="Sort 상태"
-                    size="xs"
-                    ml={2}
-                  />
-                </Th>
                 <Th textAlign="center">
                   <Button
                     colorScheme="red"
@@ -313,12 +315,10 @@ const UserSetting: React.FC = () => {
                   <Td textAlign="center">{row.age}</Td>
                   <Td textAlign="center">{row.gender}</Td>
                   <Td textAlign="center">{row.location}</Td>
-                  <Td textAlign="center">{row.active}</Td>
                   <Td textAlign="center">
                     <Button
                       colorScheme="red"
                       onClick={() => handleDelete(row.id)}
-                      isDisabled={row.active === 'inactive'}
                     >
                       삭제
                     </Button>

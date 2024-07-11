@@ -154,16 +154,6 @@ const TopicSetting = () => {
                   />
                 </Th>
                 <Th textAlign="center" fontWeight="bold" fontSize="1rem">
-                  상태
-                  <IconButton
-                    icon={renderSortIcon('topicStatus')}
-                    onClick={() => requestSort('topicStatus')}
-                    aria-label="Sort 상태"
-                    size="xs"
-                    ml={2}
-                  />
-                </Th>
-                <Th textAlign="center" fontWeight="bold" fontSize="1rem">
                   수정일자
                   <IconButton
                     icon={renderSortIcon('topicUpdateDate')}
@@ -199,7 +189,6 @@ const TopicSetting = () => {
                     {formatDate(topic.topicCreationDate)}
                   </Td>
                   <Td textAlign="center">{topic.topicQuestionCount}</Td>
-                  <Td textAlign="center">{topic.topicStatus}</Td>
                   <Td textAlign="center">
                     {formatDate(topic.topicUpdateDate)}
                   </Td>
@@ -207,7 +196,6 @@ const TopicSetting = () => {
                     <Button
                       colorScheme="red"
                       onClick={() => handleDelete(topic.topicId)}
-                      isDisabled={topic.topicStatus === 'inactive'}
                     >
                       삭제
                     </Button>
