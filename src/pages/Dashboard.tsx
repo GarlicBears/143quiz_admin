@@ -99,13 +99,15 @@ const Dashboard: React.FC = () => {
             display="flex"
             justifyContent="center"
           >
-            <ChartComponent
-              type="bar"
-              data={dailyVisitorsData as ChartData<'bar'>}
-              options={createChartOptions<'bar'>(
-                dailyVisitorsData.datasets[0].label!,
-              )}
-            />
+            {dailyVisitorsData && dailyVisitorsData.datasets[0].label && (
+              <ChartComponent
+                type="bar"
+                data={dailyVisitorsData}
+                options={createChartOptions<'bar'>(
+                  dailyVisitorsData.datasets[0].label,
+                )}
+              />
+            )}
           </Box>
         </GridItem>
         <GridItem colSpan={2}>
@@ -116,13 +118,15 @@ const Dashboard: React.FC = () => {
             display="flex"
             justifyContent="center"
           >
-            <ChartComponent
-              type="doughnut"
-              data={gameCompletionData as ChartData<'doughnut'>}
-              options={createChartOptions<'doughnut'>(
-                gameCompletionData.datasets[0].label!,
-              )}
-            />
+            {gameCompletionData && gameCompletionData.datasets[0].label && (
+              <ChartComponent
+                type="doughnut"
+                data={gameCompletionData}
+                options={createChartOptions<'doughnut'>(
+                  gameCompletionData.datasets[0].label,
+                )}
+              />
+            )}
           </Box>
         </GridItem>
         <GridItem colSpan={2}>
@@ -133,13 +137,15 @@ const Dashboard: React.FC = () => {
             display="flex"
             justifyContent="center"
           >
-            <ChartComponent
-              type="line"
-              data={monthlyVisitorsData as ChartData<'line'>}
-              options={createChartOptions<'line'>(
-                monthlyVisitorsData.datasets[0].label!,
-              )}
-            />
+            {monthlyVisitorsData && monthlyVisitorsData.datasets[0].label && (
+              <ChartComponent
+                type="line"
+                data={monthlyVisitorsData}
+                options={createChartOptions<'line'>(
+                  monthlyVisitorsData.datasets[0].label,
+                )}
+              />
+            )}
           </Box>
         </GridItem>
         <GridItem colSpan={3}>
@@ -151,7 +157,7 @@ const Dashboard: React.FC = () => {
             justifyContent="center"
             h="240px"
           >
-            <UserRanking data={userRankingData} />
+            {userRankingData && <UserRanking data={userRankingData} />}
           </Box>
         </GridItem>
       </SimpleGrid>
